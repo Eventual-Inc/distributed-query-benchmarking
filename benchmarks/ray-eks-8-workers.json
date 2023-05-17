@@ -1,6 +1,0 @@
-{
-    "name": "ray-eks-8-workers",
-    "description": "A fixed-sized Ray cluster of 8 worker nodes provisioned via KubeRay on AWS EKS. Data is not prefetched to disk.",
-    "worker_instance_type": "i3.2xlarge",
-    "num_workers": 8
-}
