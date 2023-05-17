@@ -9,16 +9,13 @@ Each benchmark result is a JSON file comprising:
 {
     "name": "tpch[SF=1000,N=512]:q1",
     "framework": "daft-0.1.1",
-    "attempt_walltimes": [100.0, 10.0, 10.0],
-    "results": [{...}, {...}, {...}],
-    "cluster_config": "benchmarks/ray-eks-8-workers.json"
+    "attempt_walltimes": [100.0, 10.0, 10.0]
 }
 ```
 
 1. `name`: the name of the benchmark being run
 2. `framework`: the framework that is being used to run the benchmark
 3. `attempt_walltimes`: the walltimes of each attempt at the benchmark (this is a list, which allows us to provision warmup runs)
-4. `cluster_config`: metadata about the cluster that the framework was running on
 
 ## Running the Benchmarks
 

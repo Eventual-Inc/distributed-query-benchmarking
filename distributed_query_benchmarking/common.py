@@ -10,7 +10,6 @@ class Config:
     s3_parquet_url: str
     results_bucket: str
     ray_address: str
-    cluster_config: str
 
     @classmethod
     def from_args(cls, args):
@@ -19,7 +18,6 @@ class Config:
             s3_parquet_url=args.s3_parquet_url,
             results_bucket=args.results_bucket,
             ray_address=args.ray_address,
-            cluster_config=args.cluster_config,
         )
 
 @dataclasses.dataclass(frozen=False)

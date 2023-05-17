@@ -39,12 +39,6 @@ def main():
         default="ray://localhost:10001",
         help="Address to the Ray cluster",
     )
-    parser.add_argument(
-        "--cluster-config",
-        choices=[f"benchmarks/{fname}" for fname in os.listdir(pathlib.Path(os.path.dirname(__file__)) / ".." / "benchmarks")],
-        required=True,
-        help="Cluster config file for the infrastructure used to run this benchmark - must be one of the files found in `benchmarks/`",
-    )
 
     args = parser.parse_args()
     config = Config.from_args(args)
