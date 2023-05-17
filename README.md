@@ -11,7 +11,7 @@ Each benchmark result is a JSON file comprising:
     "framework": "daft-0.1.1",
     "attempt_walltimes": [100.0, 10.0, 10.0],
     "results": [{...}, {...}, {...}],
-    "cluster_config": "cluster_configs/ray-eks-8-workers.json"
+    "cluster_config": "benchmarks/ray-eks-8-workers.json"
 }
 ```
 
