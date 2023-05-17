@@ -1,35 +1,20 @@
 import argparse
-import dataclasses
 import os
 import pathlib
 
 from distributed_query_benchmarking.daft_queries import tpch
+from distributed_query_benchmarking.common import Config
+from distributed_query_benchmarking.ray_job_runner import run_on_ray
 
 
-@dataclasses.dataclass
-class Config:
-    framework: str
-    s3_parquet_url: str
-    results_bucket: str
-    ray_address: str
-    cluster_config: str
-
-    @classmethod
-    def from_args(cls, args):
-        return cls(
-            framework=args.framework,
-            s3_parquet_url=args.s3_parquet_url,
-            results_bucket=args.results_bucket,
-            ray_address=args.ray_address,
-            cluster_config=args.cluster_config,
-        )
-
-
-def run_benchmarking(args):
-    if args.framework == "daft":
-        tpch.run_on_ray(args.s3_parquet_url, args.ray_address)
+def run_benchmarking(config: Config):
+    if config.framework == "daft":
+        # TODO: hardcoded for now
+        tpch_qnum = 1
+        ray_job_params = tpch.construct_ray_job(config, tpch_qnum)
+        run_on_ray(config, ray_job_params)
     else:
-        raise NotImplementedError(f"Frameowkr not implemented: {args.framework}")
+        raise NotImplementedError(f"Frameowkr not implemented: {config.framework}")
 
 
 def main():
@@ -62,7 +47,9 @@ def main():
     )
 
     args = parser.parse_args()
-    run_benchmarking(args)
+    config = Config.from_args(args)
+
+    run_benchmarking(config)
 
 
 if __name__ == "__main__":

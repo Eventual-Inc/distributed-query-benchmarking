@@ -1,10 +1,9 @@
-import time
 import os
 import pathlib
 import argparse
 import uuid
 
-from ray.job_submission import JobSubmissionClient
+from distributed_query_benchmarking.common import Config, metrics
 
 
 current_dir = pathlib.Path(os.path.dirname(__file__))
@@ -12,38 +11,16 @@ PATH_TO_TPCH_ENTRYPOINT = pathlib.Path(__file__)
 DAFT_VERSION = "0.1.0"
 
 
-def run_on_ray(s3_parquet_url: str, ray_address: str):
-    """Submits a job to run in the Ray cluster"""
-    print("Submitting Daft benchmarking job to Ray cluster...")
-
+def construct_ray_job(config: Config, tpch_qnum: int) -> dict:
     working_dir = (current_dir / ".." / "..").resolve()
-    print(f"\tWorking directory:\t{working_dir}")
-    print(f"\tRay address:\t\t{ray_address}")
-    print(f"\tDaft version:\t\t{DAFT_VERSION}")
-
-    QUESTIONS = [i for i in range(1, 11)]
-
-    for qnum in QUESTIONS:
-        client = JobSubmissionClient(address=ray_address)
-        job_id = client.submit_job(
-            submission_id=f"daft-tpch-q{qnum}-{str(uuid.uuid4())[:4]}",
-            entrypoint=f"python {str(PATH_TO_TPCH_ENTRYPOINT.relative_to(working_dir))} --s3-parquet-url {s3_parquet_url} --question-number {qnum}",
-            runtime_env={
-                "working_dir": str(working_dir),
-                "pip": [f"getdaft[aws,ray]=={DAFT_VERSION}"]
-            },
-        )
-        print(f"Submitted job: {job_id}")
-
-        status = client.get_job_status(job_id)
-        while not status.is_terminal():
-            print(f"Still waiting on {job_id} with status: {status}")
-            time.sleep(10)
-            status = client.get_job_status(job_id)
-        
-        job_info = client.get_job_info(job_id)
-        print(f"Job completed in {(job_info.end_time - job_info.start_time) / 1000}s:")
-        print(client.get_job_logs(job_id))
+    return dict(
+        submission_id=f"daft-tpch-q{tpch_qnum}-{str(uuid.uuid4())[:4]}",
+        entrypoint=f"python {str(PATH_TO_TPCH_ENTRYPOINT.relative_to(working_dir))} --s3-parquet-url {config.s3_parquet_url} --question-number {tpch_qnum}",
+        runtime_env={
+            "working_dir": str(working_dir),
+            "pip": [f"getdaft[aws,ray]=={DAFT_VERSION}"]
+        },
+    )
 
 
 
@@ -69,12 +46,15 @@ def run_tpch_question(s3_url: str, q_num: int):
 
     print(f"Job starting for TPC-H q{q_num}...")
     query = getattr(queries, f"q{q_num}")
-    df = query(get_df)
 
-    import time
-    start = time.time()
-    df.collect()
-    print(f"Q{q_num}: {time.time() - start}s")
+    with metrics() as m:
+        df = query(get_df)
+    print(f"Q{q_num} df construction took: {m.walltime_s}s")
+    print(f"Retrieved dataframe:\n{df}")
+
+    with metrics() as m:
+        df.collect()
+    print(f"Q{q_num} collect took: {m.walltime_s}s")
 
 
 if __name__ == "__main__":
