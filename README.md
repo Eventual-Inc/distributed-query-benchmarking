@@ -3,10 +3,22 @@ Benchmarking of distributed query engines
 
 ## Overview
 
-Each benchmark comprises:
+Each benchmark result is a JSON file comprising:
 
-1. Setup script: setting up the compute required to run the benchmark using AWS EC2 machines
-2. Application script: runs the benchmarks and uses utilities from `distributed-query-benchmarking` to report benchmarking results
+```json
+{
+    "name": "tpch[SF=1000,N=512]:q1",
+    "framework": "daft-0.1.1",
+    "attempt_walltimes": [100.0, 10.0, 10.0],
+    "results": [{...}, {...}, {...}],
+    "cluster_config": "cluster_configs/ray-eks-8-workers.json"
+}
+```
+
+1. `name`: the name of the benchmark being run
+2. `framework`: the framework that is being used to run the benchmark
+3. `attempt_walltimes`: the walltimes of each attempt at the benchmark (this is a list, which allows us to provision warmup runs)
+4. `cluster_config`: metadata about the cluster that the framework was running on
 
 ## Running the Benchmarks
 
@@ -14,11 +26,9 @@ The scripts in this library were run using Python 3.10.9
 
 1. Create a virtual environment: `python -m venv venv`
 2. Activate your virtual environment: `source venv/bin/activate`
-3. Install the repository: `pip install .`
+3. Install the dependencies required by this repository: `pip install -r requirements.txt`
 
-You will now have access to the commandline entrypoint `dqb`, which is used to run various operations:
-
-### Generating data
+### Generating Data
 
 TPC-H data was generated using the utilities [found in the open-sourced Daft repository](https://github.com/Eventual-Inc/Daft/blob/main/benchmarking/tpch/pipelined_data_generation.py).
 
@@ -46,4 +56,7 @@ s3://your-bucket/path/
 
 ### Running benchmarks
 
-Run `dqb tpch-benchmarks daft` to run the TPC-H benchmarks for Daft.
+Run `python distributed_query_benchmarking/__main__.py` to run the TPC-H benchmarks.
+
+1. `--s3-parquet-url` points to the S3 path prefix that contains the parquet file generated from the *Generating Data* step
+2. `--ray-address` is an address to the Ray cluster to use (if applicable to the current benchmark being run), defaults to `ray://localhost:10001`
