@@ -8,17 +8,18 @@ from distributed_query_benchmarking.common import Config, metrics
 
 current_dir = pathlib.Path(os.path.dirname(__file__))
 PATH_TO_TPCH_ENTRYPOINT = pathlib.Path(__file__)
-DAFT_VERSION = "0.1.1"
+PYSPARK_VERSION = "3.3.1"
+RAYDP_VERSION = "1.5.0"
 
 
 def construct_ray_job(config: Config, tpch_qnum: int) -> dict:
     working_dir = (current_dir / ".." / "..").resolve()
     return dict(
-        submission_id=f"daft-tpch-q{tpch_qnum}-{str(uuid.uuid4())[:4]}",
+        submission_id=f"spark-tpch-q{tpch_qnum}-{str(uuid.uuid4())[:4]}",
         entrypoint=f"python {str(PATH_TO_TPCH_ENTRYPOINT.relative_to(working_dir))} --s3-parquet-url {config.s3_parquet_url} --question-number {tpch_qnum}",
         runtime_env={
             "working_dir": str(working_dir),
-            "pip": [f"getdaft[aws,ray]=={DAFT_VERSION}"]
+            "pip": [f"pyspark=={PYSPARK_VERSION}", f"raydp=={RAYDP_VERSION}"],
         },
     )
 
@@ -32,30 +33,38 @@ def construct_ray_job(config: Config, tpch_qnum: int) -> dict:
 def run_tpch_question(s3_url: str, q_num: int):
     """Entrypoint for job that runs in the Ray cluster"""
 
-    import daft
-    from distributed_query_benchmarking.daft_queries import queries
+    from distributed_query_benchmarking.spark_queries import queries
 
-    def get_df(tbl: str) -> daft.DataFrame:
-        daft_minor_version = int(DAFT_VERSION.split(".")[1])
-        if daft_minor_version == 0:
-            return daft.DataFrame.read_parquet(os.path.join(s3_url, tbl))
-        else:
-            return daft.read_parquet(os.path.join(s3_url, tbl))
-    
-    daft.context.set_runner_ray(address="auto")
+    import ray
+    import raydp
+    ray.init(address="auto")
+
+    spark = raydp.init_spark(
+        app_name=f"tpch-q{q_num}",
+        # TODO(jay): calculate from available resources
+        executor_cores=4,
+        num_executors=16,
+        executor_memory='7GB',
+        # configs = {
+            # Set Spark master to run on head node and consume no resources
+            # 'spark.ray.raydp_spark_master.actor.resource.CPU': 0,
+            # 'spark.ray.raydp_spark_master.actor.resource.spark_master': 1,  # Force Spark driver related actor run on headnode
+            # TODO: try enabling to speed up shuffling
+            # "spark.shuffle.service.enabled": "true"
+        # }
+    )
+
+    def load_table(tbl: str):
+        df = spark.read.parquet(os.path.join(s3_url, tbl))
+        df.createOrReplaceTempView(tbl)
 
     print(f"Job starting for TPC-H q{q_num}...")
     query = getattr(queries, f"q{q_num}")
 
     with metrics() as m:
-        df = query(get_df)
-    print(f"Q{q_num} df construction took: {m.walltime_s}s")
-    print(f"Retrieved dataframe:\n{df}")
-
-    with metrics() as m:
-        df.collect()
-        print(df.to_pandas())
-    print(f"Q{q_num} collect took: {m.walltime_s}s")
+        result = query(spark, load_table)
+        print(result.to_pandas())
+    print(f"Q{q_num} computation took: {m.walltime_s}s")
 
 
 if __name__ == "__main__":
