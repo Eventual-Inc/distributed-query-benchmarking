@@ -49,6 +49,12 @@ def main():
         default="ray://localhost:10001",
         help="Address to the Ray cluster",
     )
+    parser.add_argument(
+        "--num-attempts",
+        default=2,
+        type=int,
+        help="Number of attempts per benchmark",
+    )
 
     args = parser.parse_args()
     config = Config.from_args(args)

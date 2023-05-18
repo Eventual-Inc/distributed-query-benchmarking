@@ -10,6 +10,7 @@ class Config:
     s3_parquet_url: str
     results_bucket: str
     ray_address: str
+    num_attempts: int
 
     @classmethod
     def from_args(cls, args):
@@ -18,6 +19,7 @@ class Config:
             s3_parquet_url=args.s3_parquet_url,
             results_bucket=args.results_bucket,
             ray_address=args.ray_address,
+            num_attempts=args.num_attempts,
         )
 
 @dataclasses.dataclass(frozen=False)
