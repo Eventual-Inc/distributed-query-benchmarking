@@ -19,7 +19,7 @@ def construct_ray_job(config: Config, tpch_qnum: int) -> dict:
         tpch_qnum=tpch_qnum,
         working_dir=working_dir,
         entrypoint=PATH_TO_TPCH_ENTRYPOINT,
-        runtime_env_pip=[f"getdaft[aws,ray]=={DAFT_VERSION}"],
+        runtime_env_pip=[f"getdaft[aws,ray]=={DAFT_VERSION}", "pyarrow==7.0.0"],
     )
 
 
