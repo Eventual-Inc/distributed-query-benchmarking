@@ -1,4 +1,5 @@
 import time
+import json
 
 from distributed_query_benchmarking.common import Config
 from ray.job_submission import JobSubmissionClient
@@ -7,9 +8,9 @@ from ray.job_submission import JobSubmissionClient
 def run_on_ray(config: Config, job_params: dict):
     """Submits a job to run in the Ray cluster"""
 
-    print("Submitting Daft benchmarking job to Ray cluster...")
+    print("Submitting benchmarking job to Ray cluster...")
     print("Parameters:")
-    print(job_params)
+    print(json.dumps(job_params, indent=2))
 
     client = JobSubmissionClient(address=config.ray_address)
     job_id = client.submit_job(**job_params)
