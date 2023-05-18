@@ -1,9 +1,8 @@
 import argparse
-import os
-import pathlib
 
 from distributed_query_benchmarking.daft_queries import tpch as daft_tpch
 from distributed_query_benchmarking.modin_queries import tpch as modin_tpch
+from distributed_query_benchmarking.dask_queries import tpch as dask_tpch
 from distributed_query_benchmarking.common import Config
 from distributed_query_benchmarking.ray_job_runner import run_on_ray
 
@@ -17,15 +16,18 @@ def run_benchmarking(config: Config):
     elif config.framework == "modin":
         ray_job_params = modin_tpch.construct_ray_job(config, tpch_qnum)
         run_on_ray(config, ray_job_params)
+    elif config.framework == "dask-on-ray":
+        ray_job_params = dask_tpch.construct_ray_job(config, tpch_qnum)
+        run_on_ray(config, ray_job_params)
     else:
-        raise NotImplementedError(f"Frameowkr not implemented: {config.framework}")
+        raise NotImplementedError(f"Framework not implemented: {config.framework}")
 
 
 def main():
     parser = argparse.ArgumentParser(prog="dqb")
     parser.add_argument(
         "framework",
-        choices=["daft", "modin"],
+        choices=["daft", "modin", "dask-on-ray"],
         help="Framework to run benchmarks",
     )
     parser.add_argument(
