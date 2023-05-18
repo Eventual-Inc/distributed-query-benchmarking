@@ -58,10 +58,10 @@ def main():
     )
     parser.add_argument(
         "--questions",
-        default=list(range(1, 11)),
+        default=list(range(1, 8)),
         nargs="+",
         type=int,
-        help="Questions to run as a list of integers (defaults to Q1-10): `--questions 1 2 3 10`",
+        help="Questions to run as a list of integers (defaults to Q1-7): `--questions 1 2 3 7`",
     )
 
     args = parser.parse_args()
