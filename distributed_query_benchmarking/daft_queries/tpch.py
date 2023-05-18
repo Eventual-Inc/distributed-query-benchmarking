@@ -44,7 +44,7 @@ def run_tpch_question(s3_url: str, q_num: int, num_attempts: int):
     daft.context.set_runner_ray(address="auto")
 
     for attempt in range(num_attempts):
-        print(f"Attempt {attempt} for TPC-H q{q_num}...")
+        print(f"--- Attempt {attempt} ---")
 
         with metrics() as overall_metrics:
             query = getattr(queries, f"q{q_num}")
@@ -53,11 +53,10 @@ def run_tpch_question(s3_url: str, q_num: int, num_attempts: int):
                 df = query(get_df)
             print(f"Q{q_num} df construction took: {get_df_metrics.walltime_s}s")
             print(f"Retrieved dataframe:\n{df}")
-
             df.collect()
             print(df.to_pandas())
 
-        print(f"Q{q_num} took: {overall_metrics.walltime_s}s")
+        print(f"--- Attempt {attempt} walltime: {overall_metrics.walltime_s}s ---")
 
 
 if __name__ == "__main__":

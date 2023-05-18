@@ -1,5 +1,4 @@
 import dataclasses
-import time
 import contextlib
 from datetime import datetime
 
@@ -11,6 +10,7 @@ class Config:
     results_bucket: str
     ray_address: str
     num_attempts: int
+    questions: list[int]
 
     @classmethod
     def from_args(cls, args):
@@ -20,6 +20,7 @@ class Config:
             results_bucket=args.results_bucket,
             ray_address=args.ray_address,
             num_attempts=args.num_attempts,
+            questions=args.questions,
         )
 
 @dataclasses.dataclass(frozen=False)

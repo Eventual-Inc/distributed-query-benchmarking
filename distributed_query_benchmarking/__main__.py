@@ -9,22 +9,23 @@ from distributed_query_benchmarking.ray_job_runner import run_on_ray
 
 
 def run_benchmarking(config: Config):
-    # TODO: hardcoded for now but should be scheduled by a harness that understands which TPC-H questions to run
-    tpch_qnum = 1
-    if config.framework == "daft":
-        ray_job_params = daft_tpch.construct_ray_job(config, tpch_qnum)
-        run_on_ray(config, ray_job_params)
-    elif config.framework == "modin":
-        ray_job_params = modin_tpch.construct_ray_job(config, tpch_qnum)
-        run_on_ray(config, ray_job_params)
-    elif config.framework == "dask-on-ray":
-        ray_job_params = dask_tpch.construct_ray_job(config, tpch_qnum)
-        run_on_ray(config, ray_job_params)
-    elif config.framework == "spark-on-ray":
-        ray_job_params = spark_tpch.construct_ray_job(config, tpch_qnum)
-        run_on_ray(config, ray_job_params)
-    else:
-        raise NotImplementedError(f"Framework not implemented: {config.framework}")
+    for tpch_qnum in config.questions:
+        print(f"========== Starting benchmarks for Q{tpch_qnum} ==========\n")
+        if config.framework == "daft":
+            ray_job_params = daft_tpch.construct_ray_job(config, tpch_qnum)
+            run_on_ray(config, ray_job_params)
+        elif config.framework == "modin":
+            ray_job_params = modin_tpch.construct_ray_job(config, tpch_qnum)
+            run_on_ray(config, ray_job_params)
+        elif config.framework == "dask-on-ray":
+            ray_job_params = dask_tpch.construct_ray_job(config, tpch_qnum)
+            run_on_ray(config, ray_job_params)
+        elif config.framework == "spark-on-ray":
+            ray_job_params = spark_tpch.construct_ray_job(config, tpch_qnum)
+            run_on_ray(config, ray_job_params)
+        else:
+            raise NotImplementedError(f"Framework not implemented: {config.framework}")
+        print(f"========== Finished benchmarks for Q{tpch_qnum} ==========\n")
 
 
 def main():
@@ -54,6 +55,13 @@ def main():
         default=2,
         type=int,
         help="Number of attempts per benchmark",
+    )
+    parser.add_argument(
+        "--questions",
+        default=list(range(1, 11)),
+        nargs="+",
+        type=int,
+        help="Questions to run as a list of integers (defaults to Q1-10): `--questions 1 2 3 10`",
     )
 
     args = parser.parse_args()

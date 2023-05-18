@@ -43,13 +43,13 @@ def run_tpch_question(s3_url: str, q_num: int, num_attempts: int):
         return dd.read_parquet(os.path.join(s3_url, tbl))
 
     for attempt in range(num_attempts):
-        print(f"Attempt {attempt} for TPC-H q{q_num}...")
+        print(f"--- Attempt {attempt} ---")
         query = getattr(queries, f"q{q_num}")
 
         with metrics() as m:
             result = query(get_df)
-        print(f"Q{q_num} computation took: {m.walltime_s}s")
-        print(result)
+            print(result)
+        print(f"--- Attempt {attempt} walltime: {m.walltime_s}s ---")
 
 
 if __name__ == "__main__":

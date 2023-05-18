@@ -58,13 +58,15 @@ def run_tpch_question(s3_url: str, q_num: int, num_attempts: int):
         df.createOrReplaceTempView(tbl)
 
     for attempt in range(num_attempts):
-        print(f"Attempt {attempt} for TPC-H q{q_num}...")
+        print(f"--- Attempt {attempt} ---")
         query = getattr(queries, f"q{q_num}")
 
         with metrics() as m:
             result = query(spark, load_table)
             print(result.to_pandas())
-        print(f"Q{q_num} computation took: {m.walltime_s}s")
+
+        print(f"--- Attempt {attempt} walltime: {m.walltime_s}s ---")
+        
 
 
 if __name__ == "__main__":
