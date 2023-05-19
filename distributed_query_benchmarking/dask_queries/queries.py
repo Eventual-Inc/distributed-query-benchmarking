@@ -4,13 +4,13 @@
 
 import dask.dataframe as dd
 import pandas as pd
-from datetime import date, datetime
+import datetime
 
 
 def q1(get_df):
     lineitem = get_df("lineitem")
 
-    VAR1 = datetime(year=1998, month=9, day=2)
+    VAR1 = datetime.datetime(year=1998, month=9, day=2)
 
     lineitem_filtered = lineitem.loc[
         :,
@@ -73,7 +73,7 @@ def q2(get_df):
     nation_ds = get_df("nation")
     supplier_ds = get_df("supplier")
     part_ds = get_df("part")
-    part_supp_ds = get_df("part_supp")
+    part_supp_ds = get_df("partsupp")
 
     nation_filtered = nation_ds[["N_NATIONKEY", "N_NAME", "N_REGIONKEY"]]
     region_filtered = region_ds[(region_ds["R_NAME"] == var3)]
@@ -198,7 +198,7 @@ def q3(get_df):
     var1 = datetime.datetime.strptime("1995-03-15", "%Y-%m-%d")
     var2 = "BUILDING"
 
-    line_item_ds = get_df("line_item")
+    line_item_ds = get_df("lineitem")
     orders_ds = get_df("orders")
     customer_ds = get_df("customer")
 
@@ -234,10 +234,10 @@ def q3(get_df):
 
 
 def q4(get_df):
-    date1 = datetime.strptime("1993-10-01", "%Y-%m-%d")
-    date2 = datetime.strptime("1993-07-01", "%Y-%m-%d")
+    date1 = datetime.datetime.strptime("1993-10-01", "%Y-%m-%d")
+    date2 = datetime.datetime.strptime("1993-07-01", "%Y-%m-%d")
 
-    line_item_ds = get_df("line_item")
+    line_item_ds = get_df("lineitem")
     orders_ds = get_df("orders")
 
     lsel = line_item_ds.L_COMMITDATE < line_item_ds.L_RECEIPTDATE
@@ -266,7 +266,7 @@ def q5(get_df):
     region_ds = get_df("region")
     nation_ds = get_df("nation")
     customer_ds = get_df("customer")
-    line_item_ds = get_df("line_item")
+    line_item_ds = get_df("lineitem")
     orders_ds = get_df("orders")
     supplier_ds = get_df("supplier")
 
@@ -294,7 +294,7 @@ def q6(get_df):
     date2 = datetime.datetime.strptime("1995-01-01", "%Y-%m-%d")
     var3 = 24
 
-    line_item_ds = get_df("line_item")
+    line_item_ds = get_df("lineitem")
 
     lineitem_filtered = line_item_ds.loc[
         :, ["L_QUANTITY", "L_EXTENDEDPRICE", "L_DISCOUNT", "L_SHIPDATE"]
@@ -316,12 +316,12 @@ def q6(get_df):
 
 
 def q7(get_df):
-    var1 = datetime.strptime("1995-01-01", "%Y-%m-%d")
-    var2 = datetime.strptime("1997-01-01", "%Y-%m-%d")
+    var1 = datetime.datetime.strptime("1995-01-01", "%Y-%m-%d")
+    var2 = datetime.datetime.strptime("1997-01-01", "%Y-%m-%d")
 
     nation_ds = get_df("nation")
     customer_ds = get_df("customer")
-    line_item_ds = get_df("line_item")
+    line_item_ds = get_df("lineitem")
     orders_ds = get_df("orders")
     supplier_ds = get_df("supplier")
 
