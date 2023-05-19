@@ -9,14 +9,13 @@ authors = [
 ]
 description = "Benchmarking distributed query engines"
 readme = "README.md"
-requires-python = "==3.10.9"
 keywords = ["dataframe", "benchmarking"]
 license = {file = "LICENSE"}
 classifiers = [
     "Framework :: Daft",
     "Programming Language :: Python :: 3",
 ]
-dependencies = ["ray[default]==2.3.0", "pandas", "raydp==1.5.0"]
+dependencies = ["ray[default]==2.4.0", "pandas"]
 dynamic = ["version"]
 
 [project.scripts]
