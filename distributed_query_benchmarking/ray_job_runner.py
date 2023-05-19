@@ -49,7 +49,7 @@ def ray_job_params(
         entrypoint: pathlib.Path,
         runtime_env_pip: list[str],
         runtime_env_env_vars: dict[str, str] = {},
-        runtime_env_py_modules: list[Any] = [],
+        runtime_env_py_modules: list[Any] | None = None,
     ) -> dict:
     return dict(
         submission_id=f"{config.framework}-tpch-q{tpch_qnum}-{str(uuid.uuid4())[:4]}",
