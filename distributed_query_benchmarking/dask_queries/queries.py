@@ -209,8 +209,8 @@ def q3(get_df):
         :, ["O_ORDERKEY", "O_CUSTKEY", "O_ORDERDATE", "O_SHIPPRIORITY"]
     ]
     customer_filtered = customer_ds.loc[:, ["C_MKTSEGMENT", "C_CUSTKEY"]]
-    lsel = lineitem_filtered.L_SHIPDATE > var1
-    osel = orders_filtered.O_ORDERDATE < var1
+    lsel = dd.to_datetime(lineitem_filtered.L_SHIPDATE) > var1
+    osel = dd.to_datetime(orders_filtered.O_ORDERDATE) < var1
     csel = customer_filtered.C_MKTSEGMENT == var2
     flineitem = lineitem_filtered[lsel]
     forders = orders_filtered[osel]
@@ -241,7 +241,7 @@ def q4(get_df):
     orders_ds = get_df("orders")
 
     lsel = line_item_ds.L_COMMITDATE < line_item_ds.L_RECEIPTDATE
-    osel = (orders_ds.O_ORDERDATE < date1) & (orders_ds.O_ORDERDATE >= date2)
+    osel = (dd.to_datetime(orders_ds.O_ORDERDATE) < date1) & (dd.to_datetime(orders_ds.O_ORDERDATE) >= date2)
     flineitem = line_item_ds[lsel]
     forders = orders_ds[osel]
     forders = forders[["O_ORDERKEY", "O_ORDERPRIORITY"]]
@@ -271,7 +271,7 @@ def q5(get_df):
     supplier_ds = get_df("supplier")
 
     rsel = region_ds.R_NAME == "ASIA"
-    osel = (orders_ds.O_ORDERDATE >= date1) & (orders_ds.O_ORDERDATE < date2)
+    osel = (dd.to_datetime(orders_ds.O_ORDERDATE) >= date1) & (dd.to_datetime(orders_ds.O_ORDERDATE) < date2)
     forders = orders_ds[osel]
     fregion = region_ds[rsel]
     jn1 = fregion.merge(nation_ds, left_on="R_REGIONKEY", right_on="N_REGIONKEY")
@@ -300,8 +300,8 @@ def q6(get_df):
         :, ["L_QUANTITY", "L_EXTENDEDPRICE", "L_DISCOUNT", "L_SHIPDATE"]
     ]
     sel = (
-        (lineitem_filtered.L_SHIPDATE >= date1)
-        & (lineitem_filtered.L_SHIPDATE < date2)
+        (dd.to_datetime(lineitem_filtered.L_SHIPDATE) >= date1)
+        & (dd.to_datetime(lineitem_filtered.L_SHIPDATE) < date2)
         & (lineitem_filtered.L_DISCOUNT >= 0.05)
         & (lineitem_filtered.L_DISCOUNT <= 0.07)
         & (lineitem_filtered.L_QUANTITY < var3)
@@ -326,7 +326,7 @@ def q7(get_df):
     supplier_ds = get_df("supplier")
 
     lineitem_filtered = line_item_ds[
-        (line_item_ds["L_SHIPDATE"] >= var1) & (line_item_ds["L_SHIPDATE"] < var2)
+        (dd.to_datetime(line_item_ds["L_SHIPDATE"]) >= var1) & (dd.to_datetime(line_item_ds["L_SHIPDATE"]) < var2)
     ]
     lineitem_filtered["l_year"] = lineitem_filtered["L_SHIPDATE"].dt.year
     lineitem_filtered["revenue"] = lineitem_filtered["L_EXTENDEDPRICE"] * (
