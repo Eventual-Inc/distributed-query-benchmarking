@@ -1,7 +1,5 @@
 import os
 import pathlib
-import argparse
-import uuid
 
 from distributed_query_benchmarking.common import Config, metrics
 from distributed_query_benchmarking.ray_job_runner import ray_entrypoint, ray_job_params
@@ -20,6 +18,26 @@ def construct_ray_job(config: Config, tpch_qnum: int) -> dict:
         working_dir=working_dir,
         entrypoint=PATH_TO_TPCH_ENTRYPOINT,
         runtime_env_pip=[f"getdaft[aws,ray]=={DAFT_VERSION}", "pyarrow==7.0.0"],
+    )
+
+
+def construct_ray_job_local_daft_build(config: Config, tpch_qnum: int) -> dict:
+    import daft
+
+    working_dir = (current_dir / ".." / "..").resolve()
+    return ray_job_params(
+        config=config,
+        tpch_qnum=tpch_qnum,
+        working_dir=working_dir,
+        entrypoint=PATH_TO_TPCH_ENTRYPOINT,
+        runtime_env_pip=[
+            "pyarrow==12.0.0",
+            "fsspec[http]",
+            "loguru",
+            "tabulate >= 0.9.0",
+            "psutil",
+        ],
+        runtime_env_py_modules=[daft],
     )
 
 

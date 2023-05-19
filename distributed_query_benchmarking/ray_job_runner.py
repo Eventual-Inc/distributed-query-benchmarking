@@ -8,6 +8,8 @@ import asyncio
 from distributed_query_benchmarking.common import Config
 from ray.job_submission import JobSubmissionClient
 
+from typing import Any
+
 
 async def print_logs(logs):
     async for lines in logs:
@@ -47,6 +49,7 @@ def ray_job_params(
         entrypoint: pathlib.Path,
         runtime_env_pip: list[str],
         runtime_env_env_vars: dict[str, str] = {},
+        runtime_env_py_modules: list[Any] = [],
     ) -> dict:
     return dict(
         submission_id=f"{config.framework}-tpch-q{tpch_qnum}-{str(uuid.uuid4())[:4]}",
@@ -55,5 +58,6 @@ def ray_job_params(
             "working_dir": str(working_dir),
             "pip": runtime_env_pip,
             "env_vars": runtime_env_env_vars,
+            "py_modules": runtime_env_py_modules,
         },
     )
