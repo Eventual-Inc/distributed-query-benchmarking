@@ -13,6 +13,13 @@ SCHEMA = {
         "P_RETAILPRICE",
         "P_COMMENT",
     ],
+    "partsupp": [
+        "PS_PARTKEY",
+        "PS_SUPPKEY",
+        "PS_AVAILQTY",
+        "PS_SUPPLYCOST",
+        "PS_COMMENT",
+    ],
     "supplier": [
         "S_SUPPKEY",
         "S_NAME",
@@ -21,13 +28,6 @@ SCHEMA = {
         "S_PHONE",
         "S_ACCTBAL",
         "S_COMMENT",
-    ],
-    "partsupp": [
-        "PS_PARTKEY",
-        "PS_SUPPKEY",
-        "PS_AVAILQTY",
-        "PS_SUPPLYCOST",
-        "PS_COMMENT",
     ],
     "customer": [
         "C_CUSTKEY",

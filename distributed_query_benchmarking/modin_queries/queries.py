@@ -112,10 +112,10 @@ def q2(get_df):
         ],
     ]
     partsupp_filtered = part_supp_ds.loc[
-        :, ["PS_PARTKEY", "pS_SUPPKEY", "PS_SUPPLYCOST"]
+        :, ["PS_PARTKEY", "PS_SUPPKEY", "PS_SUPPLYCOST"]
     ]
     ps_s_r_n_merged = s_r_n_merged.merge(
-        partsupp_filtered, left_on="S_SUPPKEY", right_on="pS_SUPPKEY", how="inner"
+        partsupp_filtered, left_on="S_SUPPKEY", right_on="PS_SUPPKEY", how="inner"
     )
     ps_s_r_n_merged = ps_s_r_n_merged.loc[
         :,

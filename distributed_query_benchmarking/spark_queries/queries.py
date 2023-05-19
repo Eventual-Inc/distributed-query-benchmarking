@@ -45,7 +45,7 @@ from
     region
 where
     P_PARTKEY = PS_PARTKEY
-    and S_SUPPKEY = pS_SUPPKEY
+    and S_SUPPKEY = PS_SUPPKEY
     and P_SIZE = 15
     and P_TYPE like '%BRASS'
     and S_NATIONKEY = N_NATIONKEY
@@ -61,7 +61,7 @@ where
             region
         where
             P_PARTKEY = PS_PARTKEY
-            and S_SUPPKEY = pS_SUPPKEY
+            and S_SUPPKEY = PS_SUPPKEY
             and S_NATIONKEY = N_NATIONKEY
             and N_REGIONKEY = R_REGIONKEY
             and R_NAME = 'EUROPE'
