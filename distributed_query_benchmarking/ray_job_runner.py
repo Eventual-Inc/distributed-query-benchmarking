@@ -21,7 +21,7 @@ def run_on_ray(config: Config, job_params: dict):
 
     print("Submitting benchmarking job to Ray cluster...")
     print("Parameters:")
-    print(json.dumps(job_params, indent=2))
+    print(job_params)
 
     client = JobSubmissionClient(address=config.ray_address)
     job_id = client.submit_job(**job_params)

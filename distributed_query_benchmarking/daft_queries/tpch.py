@@ -32,6 +32,7 @@ def construct_ray_job_local_daft_build(config: Config, tpch_qnum: int) -> dict:
         entrypoint=PATH_TO_TPCH_ENTRYPOINT,
         runtime_env_pip=[
             "pyarrow==12.0.0",
+            "s3fs",
             "fsspec[http]",
             "loguru",
             "tabulate >= 0.9.0",

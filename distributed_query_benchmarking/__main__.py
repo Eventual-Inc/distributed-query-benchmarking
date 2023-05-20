@@ -14,6 +14,9 @@ def run_benchmarking(config: Config):
         if config.framework == "daft":
             ray_job_params = daft_tpch.construct_ray_job(config, tpch_qnum)
             run_on_ray(config, ray_job_params)
+        elif config.framework == "daft-local-build":
+            ray_job_params = daft_tpch.construct_ray_job_local_daft_build(config, tpch_qnum)
+            run_on_ray(config, ray_job_params)
         elif config.framework == "modin":
             ray_job_params = modin_tpch.construct_ray_job(config, tpch_qnum)
             run_on_ray(config, ray_job_params)
@@ -32,7 +35,7 @@ def main():
     parser = argparse.ArgumentParser(prog="dqb")
     parser.add_argument(
         "framework",
-        choices=["daft", "modin", "dask-on-ray", "spark-on-ray"],
+        choices=["daft", "daft-local-build", "modin", "dask-on-ray", "spark-on-ray"],
         help="Framework to run benchmarks",
     )
     parser.add_argument(
