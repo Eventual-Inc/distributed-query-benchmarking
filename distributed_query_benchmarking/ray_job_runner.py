@@ -45,7 +45,6 @@ def ray_entrypoint():
     parser = argparse.ArgumentParser()
     parser.add_argument("--s3-parquet-url", help="Path to TPC-H data stored in AWS S3 as Parquet files", required=True)
     parser.add_argument("--question-number", help="Question number to run", required=True)
-    parser.add_argument("--num-attempts", help="Number of attempts to run", type=int, required=True)
     args = parser.parse_args()
     return args
 
@@ -61,7 +60,7 @@ def ray_job_params(
     ) -> dict:
     return dict(
         submission_id=f"{config.framework}-tpch-q{tpch_qnum}-{str(uuid.uuid4())[:4]}",
-        entrypoint=f"python {str(entrypoint.relative_to(working_dir))} --s3-parquet-url {config.s3_parquet_url} --question-number {tpch_qnum} --num-attempts {config.num_attempts}",
+        entrypoint=f"python {str(entrypoint.relative_to(working_dir))} --s3-parquet-url {config.s3_parquet_url} --question-number {tpch_qnum}",
         runtime_env={
             "working_dir": str(working_dir),
             "pip": runtime_env_pip,

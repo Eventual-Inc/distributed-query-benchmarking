@@ -30,7 +30,7 @@ def construct_ray_job(config: Config, tpch_qnum: int) -> dict:
 ###
 
 
-def run_tpch_question(s3_url: str, q_num: int, num_attempts: int):
+def run_tpch_question(s3_url: str, q_num: int):
     """Entrypoint for job that runs in the Ray cluster"""
 
     import modin.pandas as pd
@@ -42,18 +42,14 @@ def run_tpch_question(s3_url: str, q_num: int, num_attempts: int):
     def get_df(tbl: str) -> pd.DataFrame:
         return pd.read_parquet(os.path.join(s3_url, tbl))
 
-    for attempt in range(num_attempts):
-        print(f"--- Attempt {attempt} ---")
-        query = getattr(queries, f"q{q_num}")
+    query = getattr(queries, f"q{q_num}")
 
-        with metrics() as m:
-            result = query(get_df)
-            print(result)
-        print(f"--- Attempt {attempt} walltime: {m.walltime_s}s ---")
+    with metrics() as m:
+        result = query(get_df)
+        print(result)
+    print(f"--- walltime: {m.walltime_s}s ---")
 
 
 if __name__ == "__main__":
     args = ray_entrypoint()
-
-    for i in range(args.num_attempts):
-        run_tpch_question(args.s3_parquet_url, args.question_number, args.num_attempts)
+    run_tpch_question(args.s3_parquet_url, args.question_number)

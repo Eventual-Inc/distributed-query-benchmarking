@@ -29,7 +29,7 @@ def construct_ray_job(config: Config, tpch_qnum: int) -> dict:
 ###
 
 
-def run_tpch_question(s3_url: str, q_num: int, num_attempts: int):
+def run_tpch_question(s3_url: str, q_num: int):
     """Entrypoint for job that runs in the Ray cluster"""
 
     from distributed_query_benchmarking.spark_queries import queries
@@ -57,18 +57,16 @@ def run_tpch_question(s3_url: str, q_num: int, num_attempts: int):
         df = spark.read.parquet(os.path.join(s3_url, tbl))
         df.createOrReplaceTempView(tbl)
 
-    for attempt in range(num_attempts):
-        print(f"--- Attempt {attempt} ---")
-        query = getattr(queries, f"q{q_num}")
+    query = getattr(queries, f"q{q_num}")
 
-        with metrics() as m:
-            result = query(spark, load_table)
-            print(result.to_pandas())
+    with metrics() as m:
+        result = query(spark, load_table)
+        print(result.to_pandas())
 
-        print(f"--- Attempt {attempt} walltime: {m.walltime_s}s ---")
+    print(f"--- walltime: {m.walltime_s}s ---")
         
 
 
 if __name__ == "__main__":
     args = ray_entrypoint()
-    run_tpch_question(args.s3_parquet_url, args.question_number, args.num_attempts)
+    run_tpch_question(args.s3_parquet_url, args.question_number)
