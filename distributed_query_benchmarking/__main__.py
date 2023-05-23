@@ -10,7 +10,7 @@ from distributed_query_benchmarking.ray_job_runner import run_on_ray
 
 def run_benchmarking(config: Config):
     for tpch_qnum in config.questions:
-        for attempt in config.num_attempts:
+        for attempt in range(config.num_attempts):
             print(f"========== Starting benchmarks for Q{tpch_qnum}, attempt {attempt} ==========\n")
             if config.framework == "daft":
                 ray_job_params = daft_tpch.construct_ray_job(config, tpch_qnum)
