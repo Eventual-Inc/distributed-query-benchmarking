@@ -10,27 +10,28 @@ from distributed_query_benchmarking.ray_job_runner import run_on_ray
 
 def run_benchmarking(config: Config):
     for tpch_qnum in config.questions:
-        print(f"========== Starting benchmarks for Q{tpch_qnum} ==========\n")
-        if config.framework == "daft":
-            ray_job_params = daft_tpch.construct_ray_job(config, tpch_qnum)
-            run_on_ray(config, ray_job_params)
-        elif config.framework == "daft-local-build":
-            ray_job_params = daft_tpch.construct_ray_job_local_daft_build(config, tpch_qnum)
-            run_on_ray(config, ray_job_params)
-        elif config.framework == "modin":
-            ray_job_params = modin_tpch.construct_ray_job(config, tpch_qnum)
-            run_on_ray(config, ray_job_params)
-        elif config.framework == "dask-on-ray":
-            ray_job_params = dask_tpch.construct_ray_job(config, tpch_qnum)
-            run_on_ray(config, ray_job_params)
-        elif config.framework == "dask":
-            dask_tpch.run_on_dask(config, tpch_qnum)
-        elif config.framework == "spark-on-ray":
-            ray_job_params = spark_tpch.construct_ray_job(config, tpch_qnum)
-            run_on_ray(config, ray_job_params)
-        else:
-            raise NotImplementedError(f"Framework not implemented: {config.framework}")
-        print(f"========== Finished benchmarks for Q{tpch_qnum} ==========\n")
+        for attempt in config.num_attempts:
+            print(f"========== Starting benchmarks for Q{tpch_qnum}, attempt {attempt} ==========\n")
+            if config.framework == "daft":
+                ray_job_params = daft_tpch.construct_ray_job(config, tpch_qnum)
+                run_on_ray(config, ray_job_params)
+            elif config.framework == "daft-local-build":
+                ray_job_params = daft_tpch.construct_ray_job_local_daft_build(config, tpch_qnum)
+                run_on_ray(config, ray_job_params)
+            elif config.framework == "modin":
+                ray_job_params = modin_tpch.construct_ray_job(config, tpch_qnum)
+                run_on_ray(config, ray_job_params)
+            elif config.framework == "dask-on-ray":
+                ray_job_params = dask_tpch.construct_ray_job(config, tpch_qnum)
+                run_on_ray(config, ray_job_params)
+            elif config.framework == "dask":
+                dask_tpch.run_on_dask(config, tpch_qnum)
+            elif config.framework == "spark-on-ray":
+                ray_job_params = spark_tpch.construct_ray_job(config, tpch_qnum)
+                run_on_ray(config, ray_job_params)
+            else:
+                raise NotImplementedError(f"Framework not implemented: {config.framework}")
+            print(f"========== Finished benchmarks for Q{tpch_qnum}, attempt {attempt} ==========\n")
 
 
 def main():

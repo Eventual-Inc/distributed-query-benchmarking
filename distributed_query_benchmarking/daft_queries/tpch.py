@@ -47,7 +47,7 @@ def construct_ray_job_local_daft_build(config: Config, tpch_qnum: int) -> dict:
 ###
 
 
-def run_tpch_question(s3_url: str, q_num: int, num_attempts: int):
+def run_tpch_question(s3_url: str, q_num: int):
     """Entrypoint for job that runs in the Ray cluster"""
 
     import daft
@@ -62,22 +62,19 @@ def run_tpch_question(s3_url: str, q_num: int, num_attempts: int):
     
     daft.context.set_runner_ray(address="auto")
 
-    for attempt in range(num_attempts):
-        print(f"--- Attempt {attempt} ---")
+    with metrics() as overall_metrics:
+        query = getattr(queries, f"q{q_num}")
 
-        with metrics() as overall_metrics:
-            query = getattr(queries, f"q{q_num}")
+        with metrics() as get_df_metrics:
+            df = query(get_df)
+        print(f"Q{q_num} df construction took: {get_df_metrics.walltime_s}s")
+        print(f"Retrieved dataframe:\n{df}")
+        df.collect()
+        print(df.to_pandas())
 
-            with metrics() as get_df_metrics:
-                df = query(get_df)
-            print(f"Q{q_num} df construction took: {get_df_metrics.walltime_s}s")
-            print(f"Retrieved dataframe:\n{df}")
-            df.collect()
-            print(df.to_pandas())
-
-        print(f"--- Attempt {attempt} walltime: {overall_metrics.walltime_s}s ---")
+    print(f"--- walltime: {overall_metrics.walltime_s}s ---")
 
 
 if __name__ == "__main__":
     args = ray_entrypoint()
-    run_tpch_question(args.s3_parquet_url, args.question_number, args.num_attempts)
+    run_tpch_question(args.s3_parquet_url, args.question_number)
