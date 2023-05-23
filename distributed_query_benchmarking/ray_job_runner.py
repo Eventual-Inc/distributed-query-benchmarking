@@ -11,9 +11,10 @@ from ray.job_submission import JobSubmissionClient
 from typing import Any
 
 
-async def print_logs(logs):
-    async for lines in logs:
-        print(lines, end="")
+async def print_logs(logs, timeout_s):
+    async with asyncio.timeout(timeout_s):
+        async for lines in logs:
+            print(lines, end="")
 
 
 def run_on_ray(config: Config, job_params: dict):
@@ -26,7 +27,14 @@ def run_on_ray(config: Config, job_params: dict):
     client = JobSubmissionClient(address=config.ray_address)
     job_id = client.submit_job(**job_params)
     print(f"Submitted job: {job_id}")
-    asyncio.run(print_logs(client.tail_job_logs(job_id)))
+
+    try:
+        asyncio.run(print_logs(client.tail_job_logs(job_id), config.timeout_s))
+    except asyncio.TimeoutError:
+        print(f"Job timed out after {config.timeout_s}s! Stopping job now...")
+        client.stop_job(job_id)
+        time.sleep(16)
+
     status = client.get_job_status(job_id)
     assert status.is_terminal(), "Job should have terminated"
     job_info = client.get_job_info(job_id)

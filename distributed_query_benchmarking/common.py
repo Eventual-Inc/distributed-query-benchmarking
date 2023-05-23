@@ -12,6 +12,7 @@ class Config:
     num_attempts: int
     questions: list[int]
     dask_address: str
+    timeout_s: int
 
     @classmethod
     def from_args(cls, args):
@@ -23,6 +24,7 @@ class Config:
             num_attempts=args.num_attempts,
             questions=args.questions,
             dask_address=args.dask_address,
+            timeout_s=args.timeout_s,
         )
 
 @dataclasses.dataclass(frozen=False)

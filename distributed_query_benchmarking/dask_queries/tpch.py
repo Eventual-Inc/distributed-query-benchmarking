@@ -1,7 +1,7 @@
 import os
 import pathlib
-import argparse
-import uuid
+import contextlib
+import signal
 
 from distributed_query_benchmarking.common import Config, metrics
 from distributed_query_benchmarking.ray_job_runner import ray_entrypoint, ray_job_params
@@ -12,7 +12,18 @@ PATH_TO_TPCH_ENTRYPOINT = pathlib.Path(__file__)
 DASK_VERSION = "2022.10.1"
 
 
-def run_dask_dataframe(s3_url: str, q_num: int, num_attempts: int):
+def _handle_timeout(signum, frame):
+    raise TimeoutError("Timed out!")
+
+@contextlib.contextmanager
+def timeout(timeout_s: int):
+    signal.signal(signal.SIGALRM, _handle_timeout)
+    signal.alarm(timeout_s)
+    yield
+    signal.alarm(0)
+
+
+def run_dask_dataframe(s3_url: str, q_num: int, num_attempts: int, timeout_s: int):
     import dask.dataframe as dd
     from distributed_query_benchmarking.dask_queries import queries
 
@@ -23,7 +34,7 @@ def run_dask_dataframe(s3_url: str, q_num: int, num_attempts: int):
         print(f"--- Attempt {attempt} ---")
         query = getattr(queries, f"q{q_num}")
 
-        with metrics() as m:
+        with timeout(timeout_s), metrics() as m:
             result = query(get_df)
             print(result)
         print(f"--- Attempt {attempt} walltime: {m.walltime_s}s ---")
@@ -35,7 +46,7 @@ def run_on_dask(config: Config, tpch_qnum: int) -> None:
     # Unused, but gets registered as the default client on invocation
     client = Client(config.dask_address)
 
-    run_dask_dataframe(config.s3_parquet_url, tpch_qnum, config.num_attempts)
+    run_dask_dataframe(config.s3_parquet_url, tpch_qnum, config.num_attempts, config.timeout_s)
 
 
 
@@ -64,5 +75,5 @@ if __name__ == "__main__":
     ray.init(address="auto")
     enable_dask_on_ray()
 
-    run_dask_dataframe(args.s3_parquet_url, args.question_number, args.num_attempts)
+    run_dask_dataframe(args.s3_parquet_url, args.question_number, args.num_attempts, 0)
 
