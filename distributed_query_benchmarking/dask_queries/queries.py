@@ -328,7 +328,7 @@ def q7(get_df):
     lineitem_filtered = line_item_ds[
         (dd.to_datetime(line_item_ds["L_SHIPDATE"]) >= var1) & (dd.to_datetime(line_item_ds["L_SHIPDATE"]) < var2)
     ]
-    lineitem_filtered["l_year"] = lineitem_filtered["L_SHIPDATE"].dt.year
+    lineitem_filtered["l_year"] = dd.to_datetime(lineitem_filtered["L_SHIPDATE"]).dt.year
     lineitem_filtered["revenue"] = lineitem_filtered["L_EXTENDEDPRICE"] * (
         1.0 - lineitem_filtered["L_DISCOUNT"]
     )
