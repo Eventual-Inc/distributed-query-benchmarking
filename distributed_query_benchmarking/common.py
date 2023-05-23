@@ -11,6 +11,7 @@ class Config:
     ray_address: str
     num_attempts: int
     questions: list[int]
+    dask_address: str
 
     @classmethod
     def from_args(cls, args):
@@ -21,6 +22,7 @@ class Config:
             ray_address=args.ray_address,
             num_attempts=args.num_attempts,
             questions=args.questions,
+            dask_address=args.dask_address,
         )
 
 @dataclasses.dataclass(frozen=False)

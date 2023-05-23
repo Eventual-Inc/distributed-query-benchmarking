@@ -12,32 +12,9 @@ PATH_TO_TPCH_ENTRYPOINT = pathlib.Path(__file__)
 DASK_VERSION = "2022.10.1"
 
 
-def construct_ray_job(config: Config, tpch_qnum: int) -> dict:
-    working_dir = (current_dir / ".." / "..").resolve()
-    return ray_job_params(
-        config=config,
-        tpch_qnum=tpch_qnum,
-        working_dir=working_dir,
-        entrypoint=PATH_TO_TPCH_ENTRYPOINT,
-        runtime_env_pip=[f"dask[dataframe]=={DASK_VERSION}", "pandas<2.0.0", "s3fs"],
-    )
-
-
-###
-# Job entrypoint
-###
-
-
-def run_tpch_question(s3_url: str, q_num: int, num_attempts: int):
-    """Entrypoint for job that runs in the Ray cluster"""
-
-    from ray.util.dask import enable_dask_on_ray
+def run_dask_dataframe(s3_url: str, q_num: int, num_attempts: int):
     import dask.dataframe as dd
     from distributed_query_benchmarking.dask_queries import queries
-
-    import ray
-    ray.init(address="auto")
-    enable_dask_on_ray()
 
     def get_df(tbl: str) -> dd.DataFrame:
         return dd.read_parquet(os.path.join(s3_url, tbl))
@@ -52,6 +29,40 @@ def run_tpch_question(s3_url: str, q_num: int, num_attempts: int):
         print(f"--- Attempt {attempt} walltime: {m.walltime_s}s ---")
 
 
+def run_on_dask(config: Config, tpch_qnum: int) -> None:
+    from dask.distributed import Client
+
+    # Unused, but gets registered as the default client on invocation
+    client = Client(config.dask_address)
+
+    run_dask_dataframe(config.s3_parquet_url, tpch_qnum, config.num_attempts)
+
+
+
+def construct_ray_job(config: Config, tpch_qnum: int) -> dict:
+    working_dir = (current_dir / ".." / "..").resolve()
+    return ray_job_params(
+        config=config,
+        tpch_qnum=tpch_qnum,
+        working_dir=working_dir,
+        entrypoint=PATH_TO_TPCH_ENTRYPOINT,
+        runtime_env_pip=[f"dask[dataframe]=={DASK_VERSION}", "pandas<2.0.0", "s3fs"],
+    )
+
+
+###
+# Ray entrypoint
+###    
+
+
 if __name__ == "__main__":
     args = ray_entrypoint()
-    run_tpch_question(args.s3_parquet_url, args.question_number, args.num_attempts)
+
+    from ray.util.dask import enable_dask_on_ray
+
+    import ray
+    ray.init(address="auto")
+    enable_dask_on_ray()
+
+    run_dask_dataframe(args.s3_parquet_url, args.question_number, args.num_attempts)
+

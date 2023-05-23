@@ -23,6 +23,8 @@ def run_benchmarking(config: Config):
         elif config.framework == "dask-on-ray":
             ray_job_params = dask_tpch.construct_ray_job(config, tpch_qnum)
             run_on_ray(config, ray_job_params)
+        elif config.framework == "dask":
+            dask_tpch.run_on_dask(config, tpch_qnum)
         elif config.framework == "spark-on-ray":
             ray_job_params = spark_tpch.construct_ray_job(config, tpch_qnum)
             run_on_ray(config, ray_job_params)
@@ -35,7 +37,7 @@ def main():
     parser = argparse.ArgumentParser(prog="dqb")
     parser.add_argument(
         "framework",
-        choices=["daft", "daft-local-build", "modin", "dask-on-ray", "spark-on-ray"],
+        choices=["daft", "daft-local-build", "modin", "dask-on-ray", "spark-on-ray", "dask"],
         help="Framework to run benchmarks",
     )
     parser.add_argument(
@@ -52,6 +54,11 @@ def main():
         "--ray-address",
         default="ray://localhost:10001",
         help="Address to the Ray cluster",
+    )
+    parser.add_argument(
+        "--dask-address",
+        default="localhost:8786",
+        help="Address to the Dask cluster",
     )
     parser.add_argument(
         "--num-attempts",
