@@ -35,8 +35,12 @@ def run_dask_dataframe(s3_url: str, q_num: int, num_attempts: int, timeout_s: in
         query = getattr(queries, f"q{q_num}")
 
         with timeout(timeout_s), metrics() as m:
-            result = query(get_df)
-            print(result)
+            try:
+                result = query(get_df)
+                print(result)
+            except TimeoutError:
+                print(f"--- Attempt {attempt} timed out after {timeout_s}s ---")
+                continue
         print(f"--- Attempt {attempt} walltime: {m.walltime_s}s ---")
 
 
