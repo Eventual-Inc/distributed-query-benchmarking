@@ -75,7 +75,7 @@ def main():
         help="Questions to run as a list of integers (defaults to Q1-7): `--questions 1 2 3 7`",
     )
     parser.add_argument(
-        "--timeout_s",
+        "--timeout-s",
         default=3600,
         type=int,
         help="Number of seconds to wait before timing out each attempt",

@@ -3,20 +3,6 @@ Benchmarking of distributed query engines
 
 ## Overview
 
-Each benchmark result is a JSON file comprising:
-
-```json
-{
-    "name": "tpch[SF=1000,N=512]:q1",
-    "framework": "daft-0.1.1",
-    "attempt_walltimes": [100.0, 10.0, 10.0]
-}
-```
-
-1. `name`: the name of the benchmark being run
-2. `framework`: the framework that is being used to run the benchmark
-3. `attempt_walltimes`: the walltimes of each attempt at the benchmark (this is a list, which allows us to provision warmup runs)
-
 ## Running the Benchmarks
 
 The scripts in this library were run using Python 3.10.9
@@ -53,7 +39,20 @@ s3://your-bucket/path/
 
 ### Running benchmarks
 
-Run `python distributed_query_benchmarking/__main__.py` to run the TPC-H benchmarks.
+To run the benchmarks, you will need:
 
-1. `--s3-parquet-url` points to the S3 path prefix that contains the parquet file generated from the *Generating Data* step
-2. `--ray-address` is an address to the Ray cluster to use (if applicable to the current benchmark being run), defaults to `ray://localhost:10001`
+1. A running cluster with appropriate permissions to read data from AWS S3
+2. Data in AWS S3 in the aforementioned format
+
+You can run the script like so:
+
+```
+python distributed_query_benchmarking/__main__.py \
+    {daft, dask, modin, spark} \
+    --s3-parquet-url <URL to AWS S3 prefix containing generated data>
+    --ray-address <HTTP URL to the Ray dashboard of your Ray cluster if running on a Ray-backed framework (e.g. http://localhost:8265)>
+    --dask-address <URL to the Dask cluster if running on a Dask-backed framework (e.g. localhost:8787)>
+    --num-attempts <Number of attempts per question>
+    --timeout <Amount of time in seconds to wait until timing out for each attempt>
+    --questions <Space-separated list of questions to run (e.g. 1 2 3 5 6 10)>
+```
