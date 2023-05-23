@@ -15,7 +15,7 @@ classifiers = [
     "Framework :: Daft",
     "Programming Language :: Python :: 3",
 ]
-dependencies = ["ray[default]==2.4.0", "pandas"]
+dependencies = ["ray[default]==2.4.0", "pandas", "dask[distributed,dataframe]==2023.5.0", "ipython", "pyarrow==12.0.0", "s3fs"]
 dynamic = ["version"]
 
 [project.scripts]
