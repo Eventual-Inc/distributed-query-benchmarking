@@ -1,5 +1,6 @@
 ###
 # Adapted from: https://github.com/pola-rs/tpch/tree/main/modin_queries
+# and https://github.com/xprobe-inc/benchmarks/blob/main/tpch/modin/queries.py
 ###
 
 from datetime import date
@@ -410,3 +411,139 @@ def q7(get_df):
     )
     return result_df
 
+
+def q8(get_df):
+    part = get_df("part")
+    lineitem = get_df("lineitem")
+    orders = get_df("orders")
+    customer = get_df("customer")
+    supplier = get_df("supplier")
+    nation = get_df("nation")
+    region = get_df("region")
+
+    part_filtered = part[(part["P_TYPE"] == "ECONOMY ANODIZED STEEL")]
+    part_filtered = part_filtered.loc[:, ["P_PARTKEY"]]
+    lineitem_filtered = lineitem.loc[:, ["L_PARTKEY", "L_SUPPKEY", "L_ORDERKEY"]]
+    lineitem_filtered["VOLUME"] = lineitem["L_EXTENDEDPRICE"] * (
+        1.0 - lineitem["L_DISCOUNT"]
+    )
+    total = part_filtered.merge(
+        lineitem_filtered, left_on="P_PARTKEY", right_on="L_PARTKEY", how="inner"
+    )
+    total = total.loc[:, ["L_SUPPKEY", "L_ORDERKEY", "VOLUME"]]
+    supplier_filtered = supplier.loc[:, ["S_SUPPKEY", "S_NATIONKEY"]]
+    total = total.merge(
+        supplier_filtered, left_on="L_SUPPKEY", right_on="S_SUPPKEY", how="inner"
+    )
+    total = total.loc[:, ["L_ORDERKEY", "VOLUME", "S_NATIONKEY"]]
+    orders_filtered = orders[
+        (orders["O_ORDERDATE"] >= pd.Timestamp("1995-01-01"))
+        & (orders["O_ORDERDATE"] < pd.Timestamp("1997-01-01"))
+    ]
+    orders_filtered["O_YEAR"] = orders_filtered["O_ORDERDATE"].apply(lambda x: x.year)
+    orders_filtered = orders_filtered.loc[:, ["O_ORDERKEY", "O_CUSTKEY", "O_YEAR"]]
+    total = total.merge(
+        orders_filtered, left_on="L_ORDERKEY", right_on="O_ORDERKEY", how="inner"
+    )
+    total = total.loc[:, ["VOLUME", "S_NATIONKEY", "O_CUSTKEY", "O_YEAR"]]
+    customer_filtered = customer.loc[:, ["C_CUSTKEY", "C_NATIONKEY"]]
+    total = total.merge(
+        customer_filtered, left_on="O_CUSTKEY", right_on="C_CUSTKEY", how="inner"
+    )
+    total = total.loc[:, ["VOLUME", "S_NATIONKEY", "O_YEAR", "C_NATIONKEY"]]
+    n1_filtered = nation.loc[:, ["N_NATIONKEY", "N_REGIONKEY"]]
+    n2_filtered = nation.loc[:, ["N_NATIONKEY", "N_NAME"]].rename(
+        columns={"N_NAME": "NATION"}
+    )
+    total = total.merge(
+        n1_filtered, left_on="C_NATIONKEY", right_on="N_NATIONKEY", how="inner"
+    )
+    total = total.loc[:, ["VOLUME", "S_NATIONKEY", "O_YEAR", "N_REGIONKEY"]]
+    total = total.merge(
+        n2_filtered, left_on="S_NATIONKEY", right_on="N_NATIONKEY", how="inner"
+    )
+    total = total.loc[:, ["VOLUME", "O_YEAR", "N_REGIONKEY", "NATION"]]
+    region_filtered = region[(region["R_NAME"] == "AMERICA")]
+    region_filtered = region_filtered.loc[:, ["R_REGIONKEY"]]
+    total = total.merge(
+        region_filtered, left_on="N_REGIONKEY", right_on="R_REGIONKEY", how="inner"
+    )
+    total = total.loc[:, ["VOLUME", "O_YEAR", "NATION"]]
+
+    def udf(df):
+        demonimator = df["VOLUME"].sum()
+        df = df[df["NATION"] == "BRAZIL"]
+        numerator = df["VOLUME"].sum()
+        return numerator / demonimator
+
+    # modin returns empty column with as_index=false
+    total = total.groupby("O_YEAR").apply(udf).reset_index()
+    total.columns = ["O_YEAR", "MKT_SHARE"]
+    total = total.sort_values(
+        by=[
+            "O_YEAR",
+        ],
+        ascending=[
+            True,
+        ],
+    )
+    return total
+
+
+def q9(get_df):
+    part = get_df("part")
+    partsupp = get_df("partsupp")
+    lineitem = get_df("lineitem")
+    orders = get_df("orders")
+    supplier = get_df("supplier")
+    nation = get_df("nation")
+
+    psel = part.P_NAME.str.contains("green")
+    fpart = part[psel]
+    jn1 = lineitem.merge(fpart, left_on="L_PARTKEY", right_on="P_PARTKEY")
+    jn2 = jn1.merge(supplier, left_on="L_SUPPKEY", right_on="S_SUPPKEY")
+    jn3 = jn2.merge(nation, left_on="S_NATIONKEY", right_on="N_NATIONKEY")
+    jn4 = partsupp.merge(
+        jn3, left_on=["PS_PARTKEY", "PS_SUPPKEY"], right_on=["L_PARTKEY", "L_SUPPKEY"]
+    )
+    jn5 = jn4.merge(orders, left_on="L_ORDERKEY", right_on="O_ORDERKEY")
+    jn5["TMP"] = jn5.L_EXTENDEDPRICE * (1 - jn5.L_DISCOUNT) - (
+        (1 * jn5.PS_SUPPLYCOST) * jn5.L_QUANTITY
+    )
+    jn5["O_YEAR"] = jn5.O_ORDERDATE.apply(lambda x: x.year)
+    gb = jn5.groupby(["N_NAME", "O_YEAR"], as_index=False)["TMP"].sum()
+    total = gb.sort_values(["N_NAME", "O_YEAR"], ascending=[True, False])
+    return total
+
+
+def q10(get_df):
+    lineitem = get_df("lineitem")
+    orders = get_df("orders")
+    nation = get_df("nation")
+    customer = get_df("customer")
+
+    date1 = pd.Timestamp("1993-10-01")
+    date2 = pd.Timestamp("1994-01-01")
+    osel = (orders.O_ORDERDATE >= date1) & (orders.O_ORDERDATE < date2)
+    lsel = lineitem.L_RETURNFLAG == "R"
+    forders = orders[osel]
+    flineitem = lineitem[lsel]
+    jn1 = flineitem.merge(forders, left_on="L_ORDERKEY", right_on="O_ORDERKEY")
+    jn2 = jn1.merge(customer, left_on="O_CUSTKEY", right_on="C_CUSTKEY")
+    jn3 = jn2.merge(nation, left_on="C_NATIONKEY", right_on="N_NATIONKEY")
+    jn3["TMP"] = jn3.L_EXTENDEDPRICE * (1.0 - jn3.L_DISCOUNT)
+    gb = jn3.groupby(
+        [
+            "C_CUSTKEY",
+            "C_NAME",
+            "C_ACCTBAL",
+            "C_PHONE",
+            "N_NAME",
+            "C_ADDRESS",
+            "C_COMMENT",
+        ],
+        as_index=False,
+    )["TMP"].sum()
+    total = gb.sort_values("TMP", ascending=False)
+    total = total.head(20)
+    return total
