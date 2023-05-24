@@ -421,7 +421,7 @@ def q7(get_df):
     )
     return result_df
 
-def q08(get_df):
+def q8(get_df):
     part = get_df("part")
     lineitem = get_df("lineitem")
     orders = get_df("orders")
@@ -446,10 +446,10 @@ def q08(get_df):
     )
     total = total.loc[:, ["L_ORDERKEY", "VOLUME", "S_NATIONKEY"]]
     orders_filtered = orders[
-        (dd.to_datetime(orders["O_ORDERDATE"]) >= datetime.strptime("1995-01-01", "%Y-%m-%d"))
-        & (dd.to_datetime(orders["O_ORDERDATE"]) < datetime.strptime("1996-12-31", "%Y-%m-%d"))
+        (dd.to_datetime(orders["O_ORDERDATE"]) >= datetime.datetime.strptime("1995-01-01", "%Y-%m-%d"))
+        & (dd.to_datetime(orders["O_ORDERDATE"]) < datetime.datetime.strptime("1996-12-31", "%Y-%m-%d"))
     ]
-    orders_filtered["O_YEAR"] = orders_filtered["O_ORDERDATE"].apply(lambda x: x.year)
+    orders_filtered["O_YEAR"] = dd.to_datetime(orders_filtered["O_ORDERDATE"]).dt.year
     orders_filtered = orders_filtered.loc[:, ["O_ORDERKEY", "O_CUSTKEY", "O_YEAR"]]
     total = total.merge(
         orders_filtered, left_on="L_ORDERKEY", right_on="O_ORDERKEY", how="inner"
@@ -502,7 +502,7 @@ def q08(get_df):
     return total
 
 
-def q09(get_df):
+def q9(get_df):
     part = get_df("part")
     partsupp = get_df("partsupp")
     lineitem = get_df("lineitem")
@@ -522,7 +522,7 @@ def q09(get_df):
     jn5["TMP"] = jn5.L_EXTENDEDPRICE * (1 - jn5.L_DISCOUNT) - (
         (1 * jn5.PS_SUPPLYCOST) * jn5.L_QUANTITY
     )
-    jn5["O_YEAR"] = jn5.O_ORDERDATE.apply(lambda x: x.year)
+    jn5["O_YEAR"] = dd.to_datetime(jn5.O_ORDERDATE).dt.year
     gb = jn5.groupby(["N_NAME", "O_YEAR"])["TMP"].sum()
     total = (
         gb.compute()
@@ -538,8 +538,8 @@ def q10(get_df):
     nation = get_df("nation")
     customer = get_df("customer")
 
-    date1 = datetime.strptime("1994-11-01", "%Y-%m-%d")
-    date2 = datetime.strptime("1995-02-01", "%Y-%m-%d")
+    date1 = datetime.datetime.strptime("1994-11-01", "%Y-%m-%d")
+    date2 = datetime.datetime.strptime("1995-02-01", "%Y-%m-%d")
     osel = (dd.to_datetime(orders.O_ORDERDATE) >= date1) & (dd.to_datetime(orders.O_ORDERDATE) < date2)
     lsel = lineitem.L_RETURNFLAG == "R"
     forders = orders[osel]
