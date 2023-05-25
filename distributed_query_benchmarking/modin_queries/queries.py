@@ -3,9 +3,6 @@
 # and https://github.com/xprobe-inc/benchmarks/blob/main/tpch/modin/queries.py
 ###
 
-from datetime import date
-import datetime
-
 import pandas
 import modin.pandas as pd
 
@@ -15,7 +12,7 @@ Q_NUM = 1
 def q1(get_df):
     lineitem = get_df("lineitem")
 
-    VAR1 = date(1998, 9, 2)
+    VAR1 = pd.Timestamp("1998-09-02")
 
     lineitem_filtered = lineitem.loc[
         :,
@@ -76,7 +73,7 @@ def q2(get_df):
     nation_ds = get_df("nation")
     supplier_ds = get_df("supplier")
     part_ds = get_df("part")
-    part_supp_ds = get_df("part_supp")
+    part_supp_ds = get_df("partsupp")
 
     nation_filtered = nation_ds.loc[:, ["N_NATIONKEY", "N_NAME", "N_REGIONKEY"]]
     region_filtered = region_ds[(region_ds["R_NAME"] == var3)]
@@ -200,7 +197,7 @@ def q2(get_df):
 
 def q3(get_df):
 
-    var1 = var2 = datetime.datetime.strptime("1995-03-15", "%Y-%m-%d")
+    var1 = var2 = pd.Timestamp("1995-03-15")
     var3 = "BUILDING"
 
     customer_ds = get_df("customer")
@@ -238,8 +235,8 @@ def q3(get_df):
 
 def q4(get_df):
 
-    date1 = datetime.datetime.strptime("1993-10-01", "%Y-%m-%d")
-    date2 = datetime.datetime.strptime("1993-07-01", "%Y-%m-%d")
+    date1 = pd.Timestamp("1993-10-01")
+    date2 = pd.Timestamp("1993-07-01")
 
     line_item_ds = get_df("lineitem")
     orders_ds = get_df("orders")
@@ -259,8 +256,8 @@ def q4(get_df):
 
 def q5(get_df):
 
-    date1 = datetime.datetime.strptime("1994-01-01", "%Y-%m-%d")
-    date2 = datetime.datetime.strptime("1995-01-01", "%Y-%m-%d")
+    date1 = pd.Timestamp("1994-01-01")
+    date2 = pd.Timestamp("1995-01-01")
 
     region_ds = get_df("region")
     nation_ds = get_df("nation")
@@ -289,8 +286,8 @@ def q5(get_df):
 
 def q6(get_df):
 
-    date1 = datetime.datetime.strptime("1994-01-01", "%Y-%m-%d")
-    date2 = datetime.datetime.strptime("1995-01-01", "%Y-%m-%d")
+    date1 = pd.Timestamp("1994-01-01")
+    date2 = pd.Timestamp("1995-01-01")
     var3 = 24
 
     line_item_ds = get_df("lineitem")
@@ -319,8 +316,8 @@ def q7(get_df):
     supplier_ds = get_df("supplier")
 
     lineitem_filtered = line_item_ds[
-        (line_item_ds["L_SHIPDATE"] >= datetime.strptime("1995-01-01", "%Y-%m-%d"))
-        & (line_item_ds["L_SHIPDATE"] < datetime.strptime("1997-01-01", "%Y-%m-%d"))
+        (line_item_ds["L_SHIPDATE"] >= pd.Timestamp("1995-01-01"))
+        & (line_item_ds["L_SHIPDATE"] < pd.Timestamp("1997-01-01"))
     ]
     lineitem_filtered["l_year"] = lineitem_filtered["L_SHIPDATE"].dt.year
     lineitem_filtered["revenue"] = lineitem_filtered["L_EXTENDEDPRICE"] * (
