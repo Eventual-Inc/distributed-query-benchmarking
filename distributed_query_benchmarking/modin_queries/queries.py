@@ -6,6 +6,9 @@
 from datetime import date
 import datetime
 
+import pandas
+import modin.pandas as pd
+
 Q_NUM = 1
 
 

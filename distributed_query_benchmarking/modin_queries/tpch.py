@@ -20,7 +20,7 @@ def construct_ray_job(config: Config, tpch_qnum: int) -> dict:
         working_dir=working_dir,
         entrypoint=PATH_TO_TPCH_ENTRYPOINT,
         runtime_env_pip=[f"modin[ray,aws]=={MODIN_VERSION}", "s3fs", "pandas"],
-        runtime_env_env_vars={"__MODIN_AUTOIMPORT_PANDAS__": "1"},
+        # runtime_env_env_vars={"__MODIN_AUTOIMPORT_PANDAS__": "1"},
     )
 
 
@@ -33,6 +33,7 @@ def construct_ray_job(config: Config, tpch_qnum: int) -> dict:
 def run_tpch_question(s3_url: str, q_num: int):
     """Entrypoint for job that runs in the Ray cluster"""
 
+    import pandas
     import modin.pandas as pd
     from distributed_query_benchmarking.modin_queries import queries
 
