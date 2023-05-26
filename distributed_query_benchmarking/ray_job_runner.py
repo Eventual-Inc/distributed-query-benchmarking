@@ -40,7 +40,7 @@ def run_on_ray(config: Config, job_params: dict):
     status = client.get_job_status(job_id)
     assert status.is_terminal(), "Job should have terminated"
     job_info = client.get_job_info(job_id)
-    print(f"Job completed with {status} in {(job_info.end_time - job_info.start_time) / 1000}s:")
+    print(f"Job completed with {status}")
 
 
 def ray_entrypoint():
