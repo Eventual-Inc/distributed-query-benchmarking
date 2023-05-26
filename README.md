@@ -22,12 +22,13 @@ Where possible, we will attempt to detail in as much detail as possible how we r
 
 ### Infrastructure
 
-Our benchmarks were run in an AWS cloud account, on an EKS Kubernetes cluster.
+Our benchmarks were run in an AWS cloud account, on an EKS Kubernetes cluster. PySpark benchmarks were run from the AWS EMR service instead of on the Kubernetes cluster.
 
 1. Instance type: each machine is an `i3.2xlarge` machine type (8 cores, 60G of memory), which comes with an NVME SSD drive is used as scratch space. To simplify the setup, all "head/driver/scheduler nodes" (nodes that do not perform work but instead are only responsible for coordination) are also just launched on the same instance type.
 2. Networking: we launch clusters in the same AWS Region (us-west-2) and Availability Zone
 3. Data: The data is kept an AWS S3 bucket as Parquet files. Files are split into `N` partitions, depending on the benchmark being tested. Reading these files from AWS S3 is part of the benchmarking as well as it is representative of real-world applications.
-4. Kubernetes: For ease of deployment and easier reproducibility, we use Kubernetes (specifically, EKS on Kubernetes v1.22). We include kubernetes configs which were applied to start the necessary clusters in the `kubernetes_configs/` folder. This is how we run the Ray, Dask and Spark clusters used in this benchmark.
+4. Kubernetes: For ease of deployment and easier reproducibility, we use Kubernetes (specifically, EKS on Kubernetes v1.22). We include kubernetes configs which were applied to start the necessary clusters in the `cluster_setup/` folder. This is how we run the Ray, Dask and Spark clusters used in this benchmark.
+5. AWS EMR: Hosting a Spark cluster on kubernetes was surprisingly challenging. Instead, we opted to use a managed Spark service on AWS EMR for benchmarking PySpark.
 
 ### Code
 

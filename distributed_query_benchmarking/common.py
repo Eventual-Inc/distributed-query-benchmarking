@@ -7,7 +7,6 @@ from datetime import datetime
 class Config:
     framework: str
     s3_parquet_url: str
-    results_bucket: str
     ray_address: str
     num_attempts: int
     questions: list[int]
@@ -19,7 +18,6 @@ class Config:
         return cls(
             framework=args.framework,
             s3_parquet_url=args.s3_parquet_url,
-            results_bucket=args.results_bucket,
             ray_address=args.ray_address,
             num_attempts=args.num_attempts,
             questions=args.questions,
