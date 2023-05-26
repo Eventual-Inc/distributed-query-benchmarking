@@ -319,7 +319,9 @@ def q7(get_df):
         (line_item_ds["L_SHIPDATE"] >= pd.Timestamp("1995-01-01"))
         & (line_item_ds["L_SHIPDATE"] < pd.Timestamp("1997-01-01"))
     ]
-    lineitem_filtered["l_year"] = lineitem_filtered["L_SHIPDATE"].dt.year
+    lineitem_filtered["l_year"] = lineitem_filtered["L_SHIPDATE"].apply(
+        lambda x: x.year
+    )
     lineitem_filtered["revenue"] = lineitem_filtered["L_EXTENDEDPRICE"] * (
         1.0 - lineitem_filtered["L_DISCOUNT"]
     )
