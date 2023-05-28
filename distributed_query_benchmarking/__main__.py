@@ -3,7 +3,6 @@ import argparse
 from distributed_query_benchmarking.daft_queries import tpch as daft_tpch
 from distributed_query_benchmarking.modin_queries import tpch as modin_tpch
 from distributed_query_benchmarking.dask_queries import tpch as dask_tpch
-from distributed_query_benchmarking.spark_queries import tpch as spark_tpch
 from distributed_query_benchmarking.common import Config
 from distributed_query_benchmarking.ray_job_runner import run_on_ray
 

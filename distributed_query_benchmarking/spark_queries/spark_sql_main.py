@@ -1,10 +1,7 @@
 import os
 import time
 
-import sys
-import pyspark
-from pyspark import StorageLevel
-from pyspark import SparkContext
+import argparse
 from pyspark.sql import SparkSession
     
     
@@ -401,7 +398,7 @@ def q10(spark, load_table):
     return total.toPandas()
 
 
-def run(spark, q: int, data_folder="s3://eventual-dev-benchmarking-fixtures/uncompressed/tpch-dbgen/1000_0/512/parquet/"):
+def run(spark, q: int, data_folder):
 
     def load_table(tbl: str):
         df = spark.read.parquet(os.path.join(data_folder, tbl))
@@ -411,14 +408,20 @@ def run(spark, q: int, data_folder="s3://eventual-dev-benchmarking-fixtures/unco
     return func(spark, load_table)
 
 if __name__ == "__main__":
-    print("APPLICATION STARTING (stdout)", file=sys.stdout)
-    print("APPLICATION STARTING (stderr)", file=sys.stderr)
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "parquet_path",
+        nargs="?",
+        default="s3://eventual-dev-benchmarking-fixtures/uncompressed/tpch-dbgen/1000_0/512/parquet/"
+    )
+    args = parser.parse_args()
+    print(f"Using Parquet files at: {args.parquet_path}")
 
     for tpch_qnum in range(1, 11):
         for attempt in range(2):
             print(f"========== Starting benchmarks for Q{tpch_qnum}, attempt {attempt} ==========\n")
             spark = SparkSession.builder.appName(f"TPCH-Q{tpch_qnum}-attempt-{attempt}").getOrCreate()
             start = time.time()
-            print(run(spark, tpch_qnum))
+            print(run(spark, tpch_qnum, args.parquet_path))
             print(f"--- walltime: {time.time() - start}s ---")
             print(f"========== Finished benchmarks for Q{tpch_qnum}, attempt {attempt} ==========\n")

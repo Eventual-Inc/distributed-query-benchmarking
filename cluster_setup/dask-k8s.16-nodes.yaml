@@ -50,7 +50,7 @@ spec:
       - effect: NoSchedule
         key: ray.io/cluster-type
         operator: Equal
-        value: dev-i3-2xlarge
+        value: dev-us-west-2c
       volumes:
       - name: dask
         emptyDir: {}
@@ -109,7 +109,7 @@ spec:
       - effect: NoSchedule
         key: ray.io/cluster-type
         operator: Equal
-        value: dev-i3-2xlarge
+        value: dev-us-west-2c
       volumes:
       - name: dask
         emptyDir: {}

@@ -5,7 +5,7 @@ metadata:
   namespace: benchmarking
 spec:
   worker:
-    replicas: 8
+    replicas: 4
     spec:
       containers:
       - name: worker
@@ -40,7 +40,6 @@ spec:
             cpu: 6950m
       nodeSelector:
         eventual.internal/node-role: development
-        failure-domain.beta.kubernetes.io/zone: us-west-2c
       serviceAccountName: worker
       tolerations:
       - effect: NoSchedule
