@@ -1,0 +1,10 @@
+Cluster Configuration,Framework,Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8,Q9,Q10,Logs
+4*i3.2xlarge,Dask,267.4,66.9,410.2,816.9,972.9,233.7,477.6,498.1,1547.4,740.9,"Attempt 1 (Fails in second attempt of Q7): s3://eventual-dev-benchmarking-results/distributed-query-benchmarking/jay-scratch/28-05-2023/output.dask-4-100g.log
+Attempt 2 (We take second attempt of Q7 from this run): s3://eventual-dev-benchmarking-results/distributed-query-benchmarking/jay-scratch/28-05-2023/output.dask-4-100g-retry-7to10.log"
+4*i3.2xlarge,Dask,267.7,65.9,404.9,832.9,1003.9,230.2,485.4,488.9,1555.3,738.4,
+4*i3.2xlarge,Daft,76,49,77,103,130,43,70,135,131,61,s3://eventual-dev-benchmarking-results/distributed-query-benchmarking/0.1.3/daft.100gb.4.i3-2xlarge.log
+4*i3.2xlarge,Daft,64,46,59,63,118,38,74,140,138,67,
+4*i3.2xlarge,Modin,1864,731,FAILED,3330,FAILED,3448,TIMEOUT_3600,FAILED,FAILED,FAILED,s3://eventual-dev-benchmarking-results/distributed-query-benchmarking/0.1.3/modin.100gb.4.i3-2xlarge.log
+4*i3.2xlarge,Modin,2195,577,FAILED,3063,FAILED,3332,TIMEOUT_3600,FAILED,FAILED,3216,
+4*i3.2xlarge,EMR Spark SQL,395.5,65.8,304.6,180.7,238.6,373.9,326,265.7,314.7,291.8,s3://eventual-dev-benchmarking-results/distributed-query-benchmarking/emr_logs/j-2PTVUA2WWIE0X/containers/application_1685308266345_0001/container_1685308266345_0001_01_000001/stdout.gz
+4*i3.2xlarge,EMR Spark SQL,359.5,52.3,299.8,177.3,231.5,368.1,299.1,268.8,303.1,293,

@@ -1,0 +1,19 @@
+Cluster Configuration,Framework,Attempt,Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8,Q9,Q10,Logs
+4*i3.2xlarge,Daft,0,310,592,776,674,1057,238,909,1110,1370,846,s3://eventual-dev-benchmarking-results/distributed-query-benchmarking/0.1.3/daft.1tb.4.i3-2xlarge.log
+4*i3.2xlarge,Daft,1,291,586,808,695,1117,162,931,1126,1398,839,s3://eventual-dev-benchmarking-results/distributed-query-benchmarking/0.1.3/daft.1tb.4.i3-2xlarge.log
+8*i3.2xlarge,Daft,0,193,365,450,316,612,111,477,584,1000,464,s3://eventual-dev-benchmarking-results/distributed-query-benchmarking/0.1.3/daft.8.i3-2xlarge.log
+8*i3.2xlarge,Daft,1,156,356,395,305,663,90,514,605,1033,431,s3://eventual-dev-benchmarking-results/distributed-query-benchmarking/0.1.3/daft.8.i3-2xlarge.log
+4*i3.2xlarge,EMR Spark SQL,0,3524,588.1,2917,2049.2,2537.3,3625.7,3146.5,2973.6,3495.7,2813.8,s3://eventual-dev-benchmarking-results/distributed-query-benchmarking/emr_logs/j-3PP6R1WP1MEX2/containers/application_1685114067259_0001/container_1685114067259_0001_01_000001/stdout.gz
+4*i3.2xlarge,EMR Spark SQL,1,3517.5,515.5,2913.6,1973.2,2218.9,3606.8,3140.4,2968.5,3499,2811.2,s3://eventual-dev-benchmarking-results/distributed-query-benchmarking/emr_logs/j-3PP6R1WP1MEX2/containers/application_1685114067259_0001/container_1685114067259_0001_01_000001/stdout.gz
+8*i3.2xlarge,EMR Spark SQL,0,1760.08,310.7,1487.5,888.4,1187.34,1822.9,1537.5,1416.7,1779.4,1409.9,s3://eventual-dev-benchmarking-results/distributed-query-benchmarking/emr_logs/j-1TZ0R1U25T3GY/containers/application_1685114364251_0001/container_1685114364251_0001_01_000001/stdout.gz
+8*i3.2xlarge,EMR Spark SQL,1,1792,263.8,1473.2,884.8,1130.3,1826.6,1531.1,1495.2,1809.6,1463.2,s3://eventual-dev-benchmarking-results/distributed-query-benchmarking/emr_logs/j-1TZ0R1U25T3GY/containers/application_1685114364251_0001/container_1685114364251_0001_01_000001/stdout.gz
+8*i3.2xlarge,Dask,0,1334.8,661.2,TIMEOUT_3600_S,TIMEOUT_3600_S,TIMEOUT_3600_S,1110.4,CLUSTER_CRASHED,CLUSTER_CRASHED,CLUSTER_CRASHED,CLUSTER_CRASHED,"(NOTE: since 16x machines on Dask doesn't complete, let's disregard this row)"
+8*i3.2xlarge,Dask,1,1333.5,656,TIMEOUT_3600_S,TIMEOUT_3600_S,CLUSTER_CRASHED,1114.1,CLUSTER_CRASHED,CLUSTER_CRASHED,CLUSTER_CRASHED,CLUSTER_CRASHED,"(NOTE: since 16x machines on Dask doesn't complete, let's disregard this row)"
+16*i3.2xlarge,Dask,0,682.9,293,2024.7,TIMEOUT_3600_S,TIMEOUT_3600_S,620,CLUSTER_CRASHED,CLUSTER_CRASHED,CLUSTER_CRASHED,CLUSTER_CRASHED,"s3://eventual-dev-benchmarking-results/distributed-query-benchmarking/jay-scratch/daft-shell-bmj5b/dask-run-16machines-q1to10.log
+s3://eventual-dev-benchmarking-results/distributed-query-benchmarking/jay-scratch/daft-shell-bmj5b/dask-run-16machines-q8to10.log
+s3://eventual-dev-benchmarking-results/distributed-query-benchmarking/jay-scratch/daft-shell-bmj5b/dask-run-16machines-q9to10.log
+s3://eventual-dev-benchmarking-results/distributed-query-benchmarking/jay-scratch/daft-shell-bmj5b/dask-run-16machines-q10.log"
+16*i3.2xlarge,Dask,1,678.7,288.4,2034.3,TIMEOUT_3600_S,TIMEOUT_3600_S,602.6,CLUSTER_CRASHED,CLUSTER_CRASHED,CLUSTER_CRASHED,CLUSTER_CRASHED,"s3://eventual-dev-benchmarking-results/distributed-query-benchmarking/jay-scratch/daft-shell-bmj5b/dask-run-16machines-q1to10.log
+s3://eventual-dev-benchmarking-results/distributed-query-benchmarking/jay-scratch/daft-shell-bmj5b/dask-run-16machines-q8to10.log
+s3://eventual-dev-benchmarking-results/distributed-query-benchmarking/jay-scratch/daft-shell-bmj5b/dask-run-16machines-q9to10.log
+s3://eventual-dev-benchmarking-results/distributed-query-benchmarking/jay-scratch/daft-shell-bmj5b/dask-run-16machines-q10.log"
