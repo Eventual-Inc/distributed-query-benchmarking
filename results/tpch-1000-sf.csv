@@ -19,3 +19,5 @@ s3://eventual-dev-benchmarking-results/distributed-query-benchmarking/jay-scratc
 s3://eventual-dev-benchmarking-results/distributed-query-benchmarking/jay-scratch/daft-shell-bmj5b/dask-run-16machines-q8to10.log
 s3://eventual-dev-benchmarking-results/distributed-query-benchmarking/jay-scratch/daft-shell-bmj5b/dask-run-16machines-q9to10.log
 s3://eventual-dev-benchmarking-results/distributed-query-benchmarking/jay-scratch/daft-shell-bmj5b/dask-run-16machines-q10.log"
+4*i3.2xlarge,Dask,0,2542.3,1258.9,TIMEOUT_3600_S,TIMEOUT_3600_S,TIMEOUT_3600_S,2218.1,CLUSTER_CRASHED,CLUSTER_CRASHED,CLUSTER_CRASHED,CLUSTER_CRASHED,s3://daft-public-data/benchmarking/logs/dask.2023_5_0.1tb.4-i32xlarge.q126.log
+4*i3.2xlarge,Dask,1,2557.6,1255.6,TIMEOUT_3600_S,TIMEOUT_3600_S,TIMEOUT_3600_S,2221.3,CLUSTER_CRASHED,CLUSTER_CRASHED,CLUSTER_CRASHED,CLUSTER_CRASHED,s3://daft-public-data/benchmarking/logs/dask.2023_5_0.1tb.4-i32xlarge.q126.log
