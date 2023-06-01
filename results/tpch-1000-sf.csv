@@ -1,4 +1,6 @@
 Cluster Configuration,Framework,Attempt,Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8,Q9,Q10,Logs
+1*i3.2xlarge,Daft,0,1108,2082,2971,2255,4021,728,3371,4121,5526,3458,"s3://eventual-dev-benchmarking-results/distributed-query-benchmarking/0.1.3/daft.1tb.1.i3-2xlarge.part1.log
+s3://eventual-dev-benchmarking-results/distributed-query-benchmarking/0.1.3/daft.1tb.1.i3-2xlarge.part2.log"
 4*i3.2xlarge,Daft,0,310,592,776,674,1057,238,909,1110,1370,846,s3://eventual-dev-benchmarking-results/distributed-query-benchmarking/0.1.3/daft.1tb.4.i3-2xlarge.log
 4*i3.2xlarge,Daft,1,291,586,808,695,1117,162,931,1126,1398,839,s3://eventual-dev-benchmarking-results/distributed-query-benchmarking/0.1.3/daft.1tb.4.i3-2xlarge.log
 8*i3.2xlarge,Daft,0,193,365,450,316,612,111,477,584,1000,464,s3://eventual-dev-benchmarking-results/distributed-query-benchmarking/0.1.3/daft.8.i3-2xlarge.log
