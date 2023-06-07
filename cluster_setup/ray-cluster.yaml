@@ -1,0 +1,176 @@
+apiVersion: ray.io/v1alpha1
+kind: RayCluster
+metadata:
+  name: tpch-benchmarking
+  labels:
+    ray.io/cluster-type: dev-i3-2xlarge
+spec:
+  rayVersion: "2.4.0"
+  headGroupSpec:
+    serviceType: ClusterIP
+    replicas: 1
+    rayStartParams:
+      block: "true"
+      metrics-export-port: "8080"
+      node-ip-address: $(__POD_IP__)
+      num-cpus: "0"
+      dashboard-host: "0.0.0.0"
+    template:
+      metadata:
+        annotations:
+          cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
+        labels:
+          ray.io/cluster-type: dev-i3-2xlarge
+      spec:
+        containers:
+        - name: ray-head
+          image: rayproject/ray:2.4.0-py310
+          imagePullPolicy: Always
+          env:
+          - name: DAFT_ANALYTICS_ENABLED
+            value: "0"
+          - name: RAY_PROFILING
+            value: "1"
+          - name: RAY_event_stats_print_interval_ms
+            value: "1000"
+          - name: RAY_CLUSTER_TYPE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.labels['ray.io/cluster-type']
+          - name: __POD_IP__
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+          ports:
+          - containerPort: 6379
+            name: redis
+            protocol: TCP
+          - containerPort: 8080
+            name: metrics
+            protocol: TCP
+          - containerPort: 8265
+            name: dashboard
+            protocol: TCP
+          - containerPort: 10001
+            name: server
+            protocol: TCP
+          resources:
+            limits:
+              memory: 59000Mi
+            requests:
+              cpu: 6950m
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                - /bin/sh
+                - -c
+                - ray stop
+          volumeMounts:
+          - mountPath: /tmp/ray
+            name: ray
+        nodeSelector:
+          eventual.internal/node-role: development
+        serviceAccountName: worker
+        tolerations:
+        - effect: NoSchedule
+          key: eventual.internal/node-role
+          operator: Equal
+          value: development
+        - effect: NoSchedule
+          key: ray.io/cluster-type
+          operator: Equal
+          value: dev-us-west-2a
+        volumes:
+        - name: ray
+          emptyDir: {}
+  workerGroupSpecs:
+  - groupName: main
+    replicas: ${NUM_WORKERS}
+    minReplicas: ${NUM_WORKERS}
+    maxReplicas: ${NUM_WORKERS}
+    rayStartParams:
+      block: "true"
+      metrics-export-port: "8080"
+      node-ip-address: $(__POD_IP__)
+    template:
+      metadata:
+        annotations:
+          cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
+        labels:
+          ray.io/cluster-type: dev-i3-2xlarge
+      spec:
+        initContainers:
+        - name: wait-for-head-service
+          image: public.ecr.aws/docker/library/busybox:stable
+          command:
+          - sh
+          - -c
+          - |
+            until nc -z $RAY_IP.$(__POD_NAMESPACE__).svc.cluster.local 10001; do
+              sleep 0.1
+            done
+          env:
+          - name: __POD_NAMESPACE__
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+        containers:
+        - name: ray-worker
+          image: rayproject/ray:2.4.0-py310
+          imagePullPolicy: Always
+          env:
+          - name: DAFT_ANALYTICS_ENABLED
+            value: "0"
+          - name: RAY_PROFILING
+            value: "1"
+          - name: RAY_event_stats_print_interval_ms
+            value: "1000"
+          - name: RAY_CLUSTER_TYPE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.labels['ray.io/cluster-type']
+          - name: RAY_DISABLE_DOCKER_CPU_WARNING
+            value: "1"
+          - name: TYPE
+            value: worker
+          - name: __POD_IP__
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+          - name: RAY_IGNORE_UNHANDLED_ERRORS
+            value: "1"
+          ports:
+          - containerPort: 8080
+            name: metrics
+            protocol: TCP
+          resources:
+            limits:
+              memory: 59000Mi
+            requests:
+              cpu: 6950m
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                - /bin/sh
+                - -c
+                - ray stop
+          volumeMounts:
+          - mountPath: /tmp/ray
+            name: ray
+        nodeSelector:
+          eventual.internal/node-role: development
+        serviceAccountName: worker
+        tolerations:
+        - effect: NoSchedule
+          key: eventual.internal/node-role
+          operator: Equal
+          value: development
+        - effect: NoSchedule
+          key: ray.io/cluster-type
+          operator: Equal
+          value: dev-us-west-2a
+        volumes:
+        - name: ray
+          emptyDir: {}
