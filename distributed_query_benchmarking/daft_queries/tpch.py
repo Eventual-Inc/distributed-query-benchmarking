@@ -7,7 +7,7 @@ from distributed_query_benchmarking.ray_job_runner import ray_entrypoint, ray_jo
 
 current_dir = pathlib.Path(os.path.dirname(__file__))
 PATH_TO_TPCH_ENTRYPOINT = pathlib.Path(__file__)
-DAFT_VERSION = "0.1.3"
+DAFT_VERSION = "0.1.12"
 
 
 def construct_ray_job(config: Config, tpch_qnum: int) -> dict:
@@ -18,6 +18,7 @@ def construct_ray_job(config: Config, tpch_qnum: int) -> dict:
         working_dir=working_dir,
         entrypoint=PATH_TO_TPCH_ENTRYPOINT,
         runtime_env_pip=[f"getdaft[aws,ray]=={DAFT_VERSION}"],
+        runtime_env_env_vars={"DAFT_NEW_QUERY_PLANNER": "1"},
     )
 
 
@@ -39,6 +40,7 @@ def construct_ray_job_local_daft_build(config: Config, tpch_qnum: int) -> dict:
             "psutil",
         ],
         runtime_env_py_modules=[daft],
+        runtime_env_env_vars={"DAFT_NEW_QUERY_PLANNER": "1"},
     )
 
 
