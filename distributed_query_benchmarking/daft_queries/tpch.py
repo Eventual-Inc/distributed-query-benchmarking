@@ -7,7 +7,8 @@ from distributed_query_benchmarking.ray_job_runner import ray_entrypoint, ray_jo
 
 current_dir = pathlib.Path(os.path.dirname(__file__))
 PATH_TO_TPCH_ENTRYPOINT = pathlib.Path(__file__)
-DAFT_VERSION = "0.1.3"
+DAFT_VERSION = "0.2.1+dev0013.b4467ad6"
+DAFT_MICROPARTITIONS_FEATURE_FLAG = "1"
 
 
 def construct_ray_job(config: Config, tpch_qnum: int) -> dict:
@@ -17,7 +18,9 @@ def construct_ray_job(config: Config, tpch_qnum: int) -> dict:
         tpch_qnum=tpch_qnum,
         working_dir=working_dir,
         entrypoint=PATH_TO_TPCH_ENTRYPOINT,
-        runtime_env_pip=[f"getdaft[aws,ray]=={DAFT_VERSION}"],
+        # runtime_env_pip=[f"getdaft[aws,ray]=={DAFT_VERSION}"],
+        runtime_env_pip=[f"getdaft[aws,ray]=={DAFT_VERSION}", "--pre", "--extra-index-url https://pypi.anaconda.org/daft-nightly/simple"],
+        runtime_env_env_vars={"DAFT_MICROPARTITIONS": DAFT_MICROPARTITIONS_FEATURE_FLAG},
     )
 
 
@@ -54,11 +57,11 @@ def run_tpch_question(s3_url: str, q_num: int):
     from distributed_query_benchmarking.daft_queries import queries
 
     def get_df(tbl: str) -> daft.DataFrame:
-        daft_minor_version = int(DAFT_VERSION.split(".")[1])
-        if daft_minor_version == 0:
-            return daft.DataFrame.read_parquet(os.path.join(s3_url, tbl))
-        else:
-            return daft.read_parquet(os.path.join(s3_url, tbl))
+        return daft.read_parquet(
+            os.path.join(s3_url, tbl),
+            use_native_downloader=True,
+            io_config=daft.io.IOConfig(s3=daft.io.S3Config(max_connections=8, num_tries=20)),
+        )
     
     daft.context.set_runner_ray(address="auto")
 
