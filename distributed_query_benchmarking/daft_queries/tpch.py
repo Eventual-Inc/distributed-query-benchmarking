@@ -1,5 +1,6 @@
 import os
 import pathlib
+from packaging.version import parse as parse_version
 
 from distributed_query_benchmarking.common import Config, metrics
 from distributed_query_benchmarking.ray_job_runner import ray_entrypoint, ray_job_params
@@ -7,17 +8,19 @@ from distributed_query_benchmarking.ray_job_runner import ray_entrypoint, ray_jo
 
 current_dir = pathlib.Path(os.path.dirname(__file__))
 PATH_TO_TPCH_ENTRYPOINT = pathlib.Path(__file__)
-DAFT_VERSION = "0.1.3"
 
 
 def construct_ray_job(config: Config, tpch_qnum: int) -> dict:
     working_dir = (current_dir / ".." / "..").resolve()
+    daft_dep = config.daft_wheel_uri
+    if daft_dep is None:
+        daft_dep = f"getdaft[aws,ray]=={config.daft_pypi_version}"
     return ray_job_params(
         config=config,
         tpch_qnum=tpch_qnum,
         working_dir=working_dir,
         entrypoint=PATH_TO_TPCH_ENTRYPOINT,
-        runtime_env_pip=[f"getdaft[aws,ray]=={DAFT_VERSION}"],
+        runtime_env_pip=[daft_dep],
     )
 
 
@@ -47,19 +50,18 @@ def construct_ray_job_local_daft_build(config: Config, tpch_qnum: int) -> dict:
 ###
 
 
-def run_tpch_question(s3_url: str, q_num: int):
+def run_tpch_question(s3_url: str, q_num: int, daft_version: str):
     """Entrypoint for job that runs in the Ray cluster"""
 
     import daft
     from distributed_query_benchmarking.daft_queries import queries
 
     def get_df(tbl: str) -> daft.DataFrame:
-        daft_minor_version = int(DAFT_VERSION.split(".")[1])
-        if daft_minor_version == 0:
+        if parse_version(daft_version) < parse_version("0.1.0"):
             return daft.DataFrame.read_parquet(os.path.join(s3_url, tbl))
         else:
             return daft.read_parquet(os.path.join(s3_url, tbl))
-    
+
     daft.context.set_runner_ray(address="auto")
 
     with metrics() as overall_metrics:
@@ -77,4 +79,4 @@ def run_tpch_question(s3_url: str, q_num: int):
 
 if __name__ == "__main__":
     args = ray_entrypoint()
-    run_tpch_question(args.s3_parquet_url, args.question_number)
+    run_tpch_question(args.s3_parquet_url, args.question_number, args.daft_version)

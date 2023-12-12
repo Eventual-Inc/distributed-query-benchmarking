@@ -73,6 +73,12 @@ def main():
         type=int,
         help="Number of seconds to wait before timing out each attempt",
     )
+    parser.add_argument(
+        "--daft-pypi-version",
+        type=str,
+        help="Published Daft version to use; defaults to daft_queries.tpch.DEFAULT_DAFT_VERSION",
+    )
+    parser.add_argument("--daft-wheel-uri", type=str, help="URI pointing to a Daft wheel; defaults to None")
 
     args = parser.parse_args()
     config = Config.from_args(args)
