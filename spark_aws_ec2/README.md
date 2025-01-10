@@ -44,8 +44,16 @@ An example configuration is provided here in `example-flintrock-config.yaml`.
 
 ## Start a cluster
 
+Let's decide on a cluster name:
+
 ```bash
-uvx flintrock launch my-spark-cluster
+SPARK_CLUSTER=my-spark-cluster
+```
+
+Now let's launch the cluster
+
+```bash
+uvx flintrock launch $SPARK_CLUSTER
 ```
 
 When this is done, you can describe the cluster with:
@@ -57,7 +65,7 @@ uvx flintrock describe
 The output looks as follows:
 
 ```
-my-spark-cluster:
+$SPARK_CLUSTER:
   state: running
   node-count: 2
   master: ec2-XX-XX-XX-XX.us-west-2.compute.amazonaws.com
@@ -70,7 +78,7 @@ Some additional setup steps can now be ran:
 1. Install Python deps
 
 ```bash
-uvx flintrock run-command my-spark-cluster python3 -m pip install pandas
+uvx flintrock run-command $SPARK_CLUSTER "python3 -m pip install pandas"
 ```
 
 ## Launch a job
@@ -84,45 +92,60 @@ Thus the preferred way for launching work on this newly created cluster of yours
 1. Copy the necessary Python file(s) into the cluster
 
 ```bash
-uvx flintrock run-command my-spark-cluster mkdir /home/ec2-user/workdir
 uvx flintrock copy-file \
     --master-only \
-    my-spark-cluster \
-    ./app.py \
-    /home/ec2-user/workdir/app.py
+    $SPARK_CLUSTER \
+    ./tpcds_main.py \
+    /home/ec2-user/tpcds_main.py
+uvx flintrock copy-file \
+    --master-only \
+    $SPARK_CLUSTER \
+    ./spark_submit_harness.py \
+    /home/ec2-user/spark_submit_harness.py
 ```
 
 2. Login to your master node and launch your work: we recommend launching using `tmux` so that your jobs will continue running even after you disconnect from the cluster.
 
 ```bash
-uvx flintrock login my-spark-cluster
+uvx flintrock login $SPARK_CLUSTER
 ```
 
 Now that you are in the cluster, launch a new tmux session:
 
 ```bash
-sudo yum install tmux
+sudo yum install tmux vim
 tmux
 ```
 
-Now you can run your work, and use the cluster's `spark-submit` binary. Note all the magical configs in here that enable it to talk to S3, and that
-you should also know to use the magical `s3a://` protocol when referring to S3 paths in Spark. Don't ask any questions...
-
-* `--packages org.apache.hadoop:hadoop-aws:3.3.4`: ensure that this is the same version of Hadoop that the current release of Spark was built with (see: [Spark's pom.xml](https://github.com/apache/spark/blob/v3.5.4/pom.xml))
-* `--conf "spark.hadoop.fs.s3a.aws.credentials.provider=com.amazonaws.auth.InstanceProfileCredentialsProvider"`: tells Spark to use the instance IAM profiles
+You can then run all of the TPC-DS questions like so:
 
 ```bash
-spark-submit \
-    --master spark://$(eval hostname):7077 \
-    --packages org.apache.hadoop:hadoop-aws:3.3.4 \
-    --conf "spark.hadoop.fs.s3a.aws.credentials.provider=com.amazonaws.auth.InstanceProfileCredentialsProvider" \
-    sample-job.py
+python3 spark_submit_harness.py
 ```
+
+> ## Spark-Submit
+> Under the hood, this will submit work to the Spark cluster using `spark-submit`. Here are some notes on what it does.
+> 
+> Now you can run your work, and use the cluster's `spark-submit` binary. Note all the magical configs in here that enable it to talk to S3, and that
+> you should also know to use the magical `s3a://` protocol when referring to S3 paths in Spark. Don't ask any questions...
+
+> * `--packages org.apache.hadoop:hadoop-aws:3.3.4`: ensure that this is the same version of Hadoop that the current release of Spark was built with (see: [Spark's pom.xml](https://github.com/apache/spark/blob/v3.5.4/pom.xml))
+> * `--conf "spark.hadoop.fs.s3a.aws.credentials.provider=com.amazonaws.auth.InstanceProfileCredentialsProvider"`: tells Spark to use the instance IAM profiles
+> * `--executor-memory 122g`: tells Spark to use more memory per executor (otherwise it seems to default to 1G and will OOM)
+
+> ```bash
+> spark-submit \
+>     --master spark://$(eval hostname):7077 \
+>     --packages org.apache.hadoop:hadoop-aws:3.3.4 \
+>     --conf "spark.hadoop.fs.s3a.aws.credentials.provider=com.amazonaws.auth.InstanceProfileCredentialsProvider" \
+>     --executor-memory 122g \
+>     sample-job.py
+> ```
 
 ## Tearing Down
 
 Teardown the cluster using:
 
 ```bash
-uvx flintrock destroy my-spark-cluster
+uvx flintrock destroy $SPARK_CLUSTER
 ```

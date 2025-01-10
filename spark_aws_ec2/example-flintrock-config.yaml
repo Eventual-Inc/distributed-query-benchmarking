@@ -25,12 +25,13 @@ provider: ec2
 
 providers:
   ec2:
-    key-name: jay-mbp
-    identity-file: /Users/jaychia/.ssh/jay-mbp.pem
-    instance-type: m5.large
+    key-name: {{NAME_OF_YOUR_AWS_KEYPAIR}}
+    identity-file: {{PATH_TO_YOUR_PEM_FILE}}
+    instance-type: i8g.4xlarge
     region: us-west-2
-    # availability-zone: <name>
-    ami: ami-0575ac0e31eace5d0  # Amazon Linux 2, us-west-2
+    availability-zone: us-west-2a
+    # ami: ami-0575ac0e31eace5d0  # Amazon Linux 2, x86, us-west-2
+    ami: ami-0291a094715060835  # Amazon Linux 2, arm64, us-west-2
     user: ec2-user
     # ami: ami-61bbf104  # CentOS 7, us-east-1
     # user: centos
@@ -41,7 +42,7 @@ providers:
     # security-groups:
     #   - group-name1
     #   - group-name2
-    # instance-profile-name:
+    instance-profile-name: {{NAME_OF_AWS_ROLE=ray-autoscaler-v1}}
     # tags:
     #   - key1,value1
     #   - key2, value2  # leading/trailing spaces are trimmed
@@ -56,7 +57,7 @@ providers:
     #   - sg-xyz4654564xyz
 
 launch:
-  num-slaves: 1
+  num-slaves: 8
   install-hdfs: True
   install-spark: True
   # java-version: 8
