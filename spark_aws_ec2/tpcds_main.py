@@ -1,6 +1,7 @@
 import argparse
 import os
 import time
+import re
 
 from pyspark.sql import SparkSession
 
@@ -3828,6 +3829,18 @@ TABLE_NAMES = [
     "web_site",
 ]
 
+def get_tables_to_load(query: str) -> list[str]:
+    # Convert query to lowercase for case-insensitive matching
+    query = query.lower()
+    tables = []
+    for tbl in TABLE_NAMES:
+        # Look for table name preceded/followed by whitespace, comma, parenthesis or end of string
+        pattern = rf'(?:^|\s|,|\()\b{tbl.lower()}\b(?:\s|,|\)|$)'
+        if re.search(pattern, query):
+            tables.append(tbl)
+    return tables
+
+
 def load_table(spark, tbl: str, parquet_path: str):
     df = spark.read.parquet(os.path.join(parquet_path, tbl))
     df.createOrReplaceTempView(tbl)
@@ -3836,19 +3849,20 @@ def get_query(n: int) -> str:
     return QUERIES[f"q{n}"]
 
 def main(parquet_path: str, question: int):
+    query_sql = get_query(question)
     spark = SparkSession.builder.appName(f"tpch-q{question}").getOrCreate()
 
     # Load all tables into SQL views
+    tables = get_tables_to_load(query_sql)
     start = time.time()
-    print("Loading all tables...")
-    for tbl in TABLE_NAMES:
+    print(f"Loading {len(tables)} tables...")
+    for tbl in tables:
         load_table(spark, tbl, parquet_path)
     print(f"Finished loading all tables in {time.time() - start:.2f}s")
 
     # Run the question as a Spark app
     start = time.time()
     print(f"Running Q{question}...")
-    query_sql = get_query(question)
     df = spark.sql(query_sql)
     results = df.toPandas()
     print(f"Finished Q{question} in {time.time() - start:.2f}s")
