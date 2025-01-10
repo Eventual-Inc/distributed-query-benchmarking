@@ -5,6 +5,8 @@ import re
 
 from pyspark.sql import SparkSession
 
+from typing import List
+
 
 ###
 # Questions
@@ -3829,7 +3831,7 @@ TABLE_NAMES = [
     "web_site",
 ]
 
-def get_tables_to_load(query: str) -> list[str]:
+def get_tables_to_load(query: str) -> List[str]:
     # Convert query to lowercase for case-insensitive matching
     query = query.lower()
     tables = []

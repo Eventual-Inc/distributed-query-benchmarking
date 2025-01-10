@@ -39,6 +39,40 @@ QUESTIONS = [
     97,
   ]
 
+def parse_logs_to_csv(run_dir):
+    """Parse all logs and timing data into a single CSV file"""
+    import json
+    import csv
+    import glob
+    
+    results = []
+    
+    # Get all timing JSON files
+    timing_files = glob.glob(f"{run_dir}/timings/q*.json")
+    
+    for timing_file in timing_files:
+        with open(timing_file) as f:
+            timing_data = json.load(f)
+            
+        query_num = timing_data['query']
+        results.append({
+            'query': query_num,
+            'start_time': timing_data['start_time'],
+            'end_time': timing_data['end_time'], 
+            'duration_seconds': timing_data['duration_seconds'],
+            'exit_code': timing_data['exit_code'],
+        })
+        
+    # Write results to CSV
+    csv_file = f"{run_dir}/results.csv"
+    with open(csv_file, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=['query', 'start_time', 'end_time', 
+                                             'duration_seconds', 'exit_code'])
+        writer.writeheader()
+        writer.writerows(results)
+        
+    print(f"\nResults written to: {csv_file}")
+
 def main():
     # Create a timestamped run folder
     run_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -59,7 +93,7 @@ def main():
         
         with open(f"{run_dir}/logs/q{q}.log", "w") as logfile, \
              open(f"{run_dir}/logs/q{q}.err", "w") as errfile:
-            subprocess.call(
+            exit_code = subprocess.call(
                 'spark-submit '
                 '--master spark://$(eval hostname):7077 '
                 '--packages org.apache.hadoop:hadoop-aws:3.3.4 '
@@ -79,7 +113,8 @@ def main():
             "query": q,
             "start_time": start_time.isoformat(),
             "end_time": end_time.isoformat(),
-            "duration_seconds": duration
+            "duration_seconds": duration,
+            "exit_code": exit_code
         }
         
         # Write timing data to JSON file
@@ -87,7 +122,10 @@ def main():
         with open(f"{run_dir}/timings/q{q}.json", "w") as timing_file:
             json.dump(timing_data, timing_file, indent=2)
             
-        print(f"Q{q} completed in {duration:.2f} seconds")
+        print(f"Q{q} completed in {duration:.2f} seconds with exit code {exit_code}")
+    
+    # Parse all logs into CSV at the end
+    parse_logs_to_csv(run_dir)
 
 if __name__ == "__main__":
     main()
