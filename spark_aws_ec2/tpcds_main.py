@@ -3848,7 +3848,11 @@ def load_table(spark, tbl: str, parquet_path: str):
     df.createOrReplaceTempView(tbl)
 
 def get_query(n: int) -> str:
-    return QUERIES[f"q{n}"]
+    if f"q{n}" in QUERIES:
+        return QUERIES[f"q{n}"]
+    elif f"q{n}a" in QUERIES:
+        return QUERIES[f"q{n}a"]
+    raise RuntimeError(f"Unable to find corresponding query sql string for question: {n}")
 
 def main(parquet_path: str, question: int):
     query_sql = get_query(question)
