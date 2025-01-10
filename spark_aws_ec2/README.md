@@ -65,6 +65,14 @@ my-spark-cluster:
     - ec2-XX-XX-XX-XX.us-west-2.compute.amazonaws.com
 ```
 
+Some additional setup steps can now be ran:
+
+1. Install Python deps
+
+```bash
+uvx flintrock run-command my-spark-cluster python3 -m pip install pandas
+```
+
 ## Launch a job
 
 Spark launches jobs using the `spark-submit` binary, which is packaged in releases of Spark. However, one significant limitation of the `spark-submit`
@@ -97,11 +105,17 @@ sudo yum install tmux
 tmux
 ```
 
-Now you can run your work, and use the cluster's `spark-submit` binary.
+Now you can run your work, and use the cluster's `spark-submit` binary. Note all the magical configs in here that enable it to talk to S3, and that
+you should also know to use the magical `s3a://` protocol when referring to S3 paths in Spark. Don't ask any questions...
+
+* `--packages org.apache.hadoop:hadoop-aws:3.3.4`: ensure that this is the same version of Hadoop that the current release of Spark was built with (see: [Spark's pom.xml](https://github.com/apache/spark/blob/v3.5.4/pom.xml))
+* `--conf "spark.hadoop.fs.s3a.aws.credentials.provider=com.amazonaws.auth.InstanceProfileCredentialsProvider"`: tells Spark to use the instance IAM profiles
 
 ```bash
 spark-submit \
     --master spark://$(eval hostname):7077 \
+    --packages org.apache.hadoop:hadoop-aws:3.3.4 \
+    --conf "spark.hadoop.fs.s3a.aws.credentials.provider=com.amazonaws.auth.InstanceProfileCredentialsProvider" \
     sample-job.py
 ```
 
