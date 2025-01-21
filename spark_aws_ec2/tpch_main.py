@@ -756,7 +756,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--parquet_path",
-        default="s3a://eventual-dev-benchmarking-fixtures/uncompressed/tpch-dbgen/1000/512/parquet/"
+        default="s3a://eventual-dev-benchmarking-fixtures/uncompressed/tpch-dbgen/1000_0/512/parquet/"
     )
     args = parser.parse_args()
     print(f"Using Parquet files at: {args.parquet_path}")
