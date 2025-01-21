@@ -142,6 +142,42 @@ python3 spark_submit_harness.py
 >     sample-job.py
 > ```
 
+## Spark history server (optional)
+
+You may want the Spark UI to view the workflow and get more detailed information.
+
+1. Logout of the cluster if needed.
+
+2. Create a path on every node in the cluster for saving event logs:
+
+```bash
+uvx flintrock run-command $SPARK_CLUSTER "mkdir -p /home/ec2-user/tmp/spark-logs"
+```
+
+3. Log back into the cluster:
+
+```bash
+uvx flintrock login $SPARK_CLUSTER
+```
+
+4. Modify the default config for the spark cluster:
+
+```bash
+cp /home/ec2-user/spark/conf/spark-defaults.conf.template /home/ec2-user/spark/conf/spark-defaults.conf;
+echo "spark.eventLog.enabled true" >> /home/ec2-user/spark/conf/spark-defaults.conf;
+echo "spark.eventLog.dir file:///home/ec2-user/tmp/spark-logs" >> /home/ec2-user/spark/conf/spark-defaults.conf;
+```
+
+5. Start the Spark history server
+
+```bash
+./home/ec2-user/spark/sbin/start-history-server.sh
+```
+
+6. Run your query
+
+7. Go to `http://<public-ip-or-dns-of-spark-cluster-master>:4040` to view the Spark UI
+
 ## Tearing Down
 
 Teardown the cluster using:
