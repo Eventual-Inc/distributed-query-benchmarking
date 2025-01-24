@@ -160,15 +160,16 @@ uvx flintrock run-command $SPARK_CLUSTER "mkdir -p /home/ec2-user/tmp/spark-logs
 uvx flintrock login $SPARK_CLUSTER
 ```
 
-4. Modify the default config for the spark cluster:
+4. Modify the default config for the spark cluster. Essentially turn on event logging, set the directory where event logs will be saved, then point the Spark history server to read from this same directory:
 
 ```bash
 cp /home/ec2-user/spark/conf/spark-defaults.conf.template /home/ec2-user/spark/conf/spark-defaults.conf;
 echo "spark.eventLog.enabled true" >> /home/ec2-user/spark/conf/spark-defaults.conf;
 echo "spark.eventLog.dir file:///home/ec2-user/tmp/spark-logs" >> /home/ec2-user/spark/conf/spark-defaults.conf;
+echo "spark.history.fs.logDirectory file:///home/ec2-user/tmp/spark-logs" >> /home/ec2-user/spark/conf/spark-defaults.conf;
 ```
 
-5. Start the Spark history server
+5. Start the Spark history server:
 
 ```bash
 ./home/ec2-user/spark/sbin/start-history-server.sh
@@ -176,7 +177,7 @@ echo "spark.eventLog.dir file:///home/ec2-user/tmp/spark-logs" >> /home/ec2-user
 
 6. Run your query
 
-7. Go to `http://<public-ip-or-dns-of-spark-cluster-master>:4040` to view the Spark UI
+7. Go to `http://<public-ip-or-dns-of-spark-cluster-master>:18080` to view the Spark UI. You may need to modify the inbound rules for the EC2 instance that your Spark driver lives on to accept inbound connections to port 18080.
 
 ## Tearing Down
 
